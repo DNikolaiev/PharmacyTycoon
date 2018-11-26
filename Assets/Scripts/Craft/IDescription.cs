@@ -1,0 +1,5 @@
+﻿
+interface IDescription  {
+    void SetDescription();
+
+}
