@@ -6,7 +6,6 @@ public class BarFiller : MonoBehaviour {
 
     public Image toxicityBar;
     public Image healingBar;
-    private Text possibleText;
     private float value;
     private void Start()
     {
@@ -17,7 +16,7 @@ public class BarFiller : MonoBehaviour {
     {
         this.value = value;
         img.fillAmount = value / 100;
-        possibleText = img.transform.parent.GetComponentInChildren<Text>();
+      Text  possibleText = img.transform.parent.GetComponentInChildren<Text>();
         if (possibleText!=null)
         {
             possibleText.text = (value + "%").ToString();
@@ -26,8 +25,12 @@ public class BarFiller : MonoBehaviour {
     }
     private void OnEnable()
     {
-        if(possibleText!=null)
+        Text possibleText = toxicityBar.transform.parent.GetComponentInChildren<Text>();
+        Text possibleText2 = healingBar.transform.parent.GetComponentInChildren<Text>();
+        if (possibleText!=null)
         possibleText.text = "0 %";
+        if (possibleText2 != null)
+            possibleText2.text = "0 %";
         toxicityBar.fillAmount = 0;
         healingBar.fillAmount = 0;
     }

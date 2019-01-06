@@ -19,6 +19,7 @@ public class CameraController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (!GameController.instance.isGameSceneEnabled) return;
         if (Input.touchCount == 0 && isZooming)
         {
             isZooming = false;
@@ -26,6 +27,7 @@ public class CameraController : MonoBehaviour {
 
         if (Input.touchCount == 1 && isActive)
         {
+            
             if (!isZooming)
             {
                 if (Input.GetTouch(0).phase == TouchPhase.Moved)

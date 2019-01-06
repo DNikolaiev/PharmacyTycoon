@@ -134,7 +134,7 @@ public class SceneObject : Constructible, ITouchable{
     }
     public void ConfirmSale()
     {
-        confirm = Constructor.instance.confirm;
+        confirm = ButtonController.instance.confirm;
         confirm.SetPanel("Sell " + description.Name + " for " + description.sellPrice + "$ ?");
         confirm.Activate(true);
         confirm.ok.onClick.AddListener(SellObject);

@@ -102,10 +102,12 @@ public class Researcher : MonoBehaviour {
         CheckIfNewResearchesAvailiable();
         ButtonController.instance.HideAllButtons();
         ButtonController.instance.cancel.gameObject.SetActive(true);
-       
+        GameController.instance.isGameSceneEnabled = false;
+
     }
     public void ResearchOFF()
     {
+        GameController.instance.isGameSceneEnabled = true;
         DescriptionPanel.ReturnToOrigin();
         researchScreen.SetActive(false);
 

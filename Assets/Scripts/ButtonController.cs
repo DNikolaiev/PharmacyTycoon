@@ -8,7 +8,8 @@ public class ButtonController : MonoBehaviour {
     public Button cancel;
     public Button craft;
     public HintPanel hint;
-    
+    public ConfirmationWindow confirm;
+    public MessageBox messageBox;
     public static ButtonController instance;
     private void Awake()
     {
@@ -45,5 +46,10 @@ public class ButtonController : MonoBehaviour {
             if(btn!=cancel)
             btn.gameObject.SetActive(true);
         }
+    }
+    public void GetHint(string text)
+    {
+        if (Player.instance.level < 3)
+            ButtonController.instance.hint.SetPanel(Input.mousePosition, text);
     }
 }

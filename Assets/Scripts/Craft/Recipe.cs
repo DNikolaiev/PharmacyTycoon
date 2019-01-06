@@ -1,40 +1,64 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 [System.Serializable]
-public class Recipe  {
-    public string Name;
-    public int healingPlants;
-    public int chemistry;
-    public int plastic;
-    public int toxicity;
+public class Recipe {
+    public Description description;
+    public Characteristics characteristics;
     public bool isLiquid = true;
+    private int deathRating;
+    private List<Talent> talents = new List<Talent>();
+    private List<Talent> primaryTalents;
+    private List<Talent> secondaryTalents;
 
-    
-    private List<Talent> talents;
-	public Recipe(List<Talent> talents, Characteristics characteristics, bool isLiquid)
+    public Recipe(string Name, List<Talent> talents, Characteristics characteristics, bool isLiquid)
     {
-        healingPlants = characteristics.healingPlantsNeeded;
-        chemistry = characteristics.chemistryNeeded;
-        plastic = characteristics.plasticNeeded;
-        toxicity = characteristics.toxicity;
+        description = new Description();
+        description.Name = Name;
+        this.characteristics=characteristics;
+        this.characteristics.healingRate = ConvertHealingRate(characteristics.healingRate);
+        deathRating = 0;
         this.isLiquid = isLiquid;
-        foreach(Talent tal in talents)
-        {
-            
-                talents.Add(tal);
-           
-        }
-        
+        this.talents.AddRange(talents);
+        primaryTalents = this.talents.Where(x => x.isPrimary).ToList();
+        secondaryTalents = this.talents.Where(x => !x.isPrimary).ToList(); 
     }
 
- 
-
+    private int ConvertHealingRate(int healingPercent)
+    {
+        return healingPercent * 100;
+    }
+    public int DeathRating
+    {
+        get
+        {
+            return deathRating;
+        }
+        set
+        {
+            deathRating = value;
+        }
+    }
     public List<Talent> Talents
     {
         get
         {
             return talents;
+        }
+    }
+    public List<Talent> PTalents
+    {
+        get
+        {
+            return primaryTalents;
+        }
+    }
+    public List<Talent> STalents
+    {
+        get
+        {
+            return secondaryTalents;
         }
     }
 

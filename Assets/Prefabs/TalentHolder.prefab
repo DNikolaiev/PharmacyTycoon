@@ -95,6 +95,7 @@ MonoBehaviour:
   Nametxt: {fileID: 0}
   talent: {fileID: 0}
   picture: {fileID: 114855451872447068}
+  defaultSprite: {fileID: 0}
   descriptionPanel: {fileID: 0}
   remainingTime: {fileID: 114715272267847244}
   inWorkSprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}

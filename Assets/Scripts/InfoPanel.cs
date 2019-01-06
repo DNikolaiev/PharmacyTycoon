@@ -41,8 +41,8 @@ public class InfoPanel: Panel, IPointerDownHandler, IPointerUpHandler {
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        StopAllCoroutines();
-        StartCoroutine(ChangeScale(scaleSpeed, scaleModifier));
+      //  StopAllCoroutines();
+        //StartCoroutine(ChangeScale(scaleSpeed, scaleModifier));
     }
     IEnumerator ChangeScale(float speed, float desiredScale)
     {
@@ -66,7 +66,7 @@ public class InfoPanel: Panel, IPointerDownHandler, IPointerUpHandler {
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        StopAllCoroutines();
-        StartCoroutine(ReturnScale(scaleSpeed));
+      //  StopAllCoroutines();
+        //StartCoroutine(ReturnScale(scaleSpeed));
     }
 }

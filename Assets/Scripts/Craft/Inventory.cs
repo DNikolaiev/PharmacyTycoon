@@ -1,24 +1,37 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Inventory:MonoBehaviour  {
-    //value = amount of medicine in warehouse
-   [SerializeField] private Dictionary<Recipe, int> warehouse;
-    public void Set(Recipe key, int value)
+using System.Linq;
+public class Inventory: MonoBehaviour {
+    public int capacity=10; // max number of recipes in inventory
+    public List<Recipe> recipes;
+    [SerializeField] private Dictionary<string, int> warehouse = new Dictionary<string, int>(); //value = amount of medicine in warehouse //key = name of recipe
+    public void Set(Recipe recipe, int value) // add element to dictionary(warehouse)
     {
-        if (Mathf.Abs(value) > warehouse[key] && value<0)
-            return;
-        if (warehouse.ContainsKey(key))
+        string key = recipe.description.Name;
+      
+        if (CheckIfWarehouseContains(key) )
         {
+            Debug.Log("Contains");
+
                 warehouse[key] += value;
         }
-        else
+        else if (!CheckIfWarehouseContains(key) && warehouse.Count < capacity )
         {
+            recipes.Add(recipe);
             warehouse.Add(key,value);
+            Debug.Log("Set"+" " +key+" "+ warehouse[key]);
+            
         }
+        else if (value < 0 || warehouse.Count == capacity)
+        {
+            Debug.Log("FULL");
+            //run notifictation here "You have too many recipes, go and delete one"
+            return;
+        }
+
     }
-    public bool CheckIfWarehouseContains(Recipe key)
+    public bool CheckIfWarehouseContains(string key)
     {
         if (warehouse.ContainsKey(key))
         {
@@ -26,7 +39,7 @@ public class Inventory:MonoBehaviour  {
         }
         return false;
     }
-    public int Get(Recipe key)
+    public int GetQuantity(string key)
     {
         int result = 0;
 
@@ -37,5 +50,26 @@ public class Inventory:MonoBehaviour  {
 
         return result;
     }
-
+    public int GetNumberOfElements()
+    {
+        return warehouse.Count;
+    }
+   public void Delete(string key)
+    {
+        
+        warehouse.Remove(key);
+        Recipe[] toDelete = recipes.Where(x => x.description.Name == key).ToArray();
+        recipes.Remove(toDelete[0]);
+       
+    }
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.W))
+        {
+            foreach(Recipe r in recipes)
+            {
+                Debug.Log(r.description.Name + " " + warehouse[r.description.Name]);
+            }
+        }
+    }
 }

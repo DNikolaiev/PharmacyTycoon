@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 [System.Serializable]
 public class ResourceStorage {
+    public ResourcePanel rPanel;
 
     public int currentHealingPlants;
     public int currentChemistry;
@@ -21,6 +22,7 @@ public class ResourceStorage {
     { get { return _maxPlastic; } private set { _maxPlastic = value; } }
 
     
+    
     public void ExpandPlantsStorage(int amount)
     {
         MaxHealingPlants += amount;
@@ -35,8 +37,6 @@ public class ResourceStorage {
     }
     public void AddHealingPlants(int amount)
     {
-        Debug.Log("1");
-        Debug.Log(amount);
        currentHealingPlants= AddResources(amount, currentHealingPlants, MaxHealingPlants);
     }
     public void AddResearchPoints(int amount)
@@ -51,7 +51,17 @@ public class ResourceStorage {
     {
         currentPlastic= AddResources(amount, currentPlastic, MaxPlastic);
     }
-
+   
+    public void SpendResources(int plants, int chem, int plastic, int researchPoints=0)
+    {
+        AddHealingPlants(-plants);
+        AddChemistry(-chem);
+        AddPlastic(-plastic);
+        if (researchPoints != 0)
+            AddResearchPoints(-researchPoints);
+        rPanel.SetPanel(this);
+        
+    }
     private int AddResources(int amount,  int currentResource, int maxResource)
     {
         if (currentResource+amount<=maxResource)
@@ -62,6 +72,8 @@ public class ResourceStorage {
         {
             currentResource += maxResource - currentResource;
         }
+        rPanel.SetPanel(this);
         return currentResource;
     }
+
 }

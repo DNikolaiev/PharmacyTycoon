@@ -16,7 +16,7 @@ public class TouchController : MonoBehaviour {
     }
     public void CheckOnClick(Vector3 position, string layerName)
     {
-        if (Constructor.instance.isShopEnabled)
+        if (Constructor.instance.isShopEnabled || !GameController.instance.isGameSceneEnabled)
             return;
 
         int layerTouchable = LayerMask.GetMask(layerName);
@@ -26,7 +26,7 @@ public class TouchController : MonoBehaviour {
             if (Physics.Raycast(ray, out hit,Mathf.Infinity, layerTouchable))
             {
            
-             if (hit.transform.GetComponent<ITouchable>() != null)
+             if (hit.transform.GetComponent<ITouchable>() != null && GameController.instance.isGameSceneEnabled)
                 {
                     ITouchable objectTouched = hit.transform.GetComponent<ITouchable>();
                     HelpPanel panel = GameObject.FindObjectOfType<HelpPanel>();

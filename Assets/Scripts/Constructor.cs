@@ -8,14 +8,14 @@ public class Constructor : MonoBehaviour {
     public Constructible[] objectsToConstruct;
     public Cell selectedCell;
     public Builder builder;
-    public ConfirmationWindow confirm;
+    
     public bool isShopEnabled=false;
     public bool inConfirmation = false;
     public bool isActive = false;
 
     private Button constructBtn;
     private Button cancelBtn;
-
+    private ConfirmationWindow confirm;
     public static Constructor instance;
     private void Awake()
     {
@@ -27,6 +27,7 @@ public class Constructor : MonoBehaviour {
     }
     private void Start()
     {
+        confirm = ButtonController.instance.confirm;
         constructBtn = ButtonController.instance.constructor;
         cancelBtn = ButtonController.instance.cancel;
         shopPanel.gameObject.SetActive(false);
@@ -72,7 +73,7 @@ public class Constructor : MonoBehaviour {
             return;
         Constructible selectedObject=builder.Build(id, objectsToConstruct, selectedCell);
         selectedCell.AddObject(selectedObject);
-        
+        Player.instance.ChangeBalance(-objectsToConstruct[id].description.buyPrice);
         Abort();
         ConstructOFF();
         
@@ -106,10 +107,11 @@ public class Constructor : MonoBehaviour {
         ButtonController.instance.HideAllButtons();
         ButtonController.instance.SwitchButtons(constructBtn, cancelBtn);
         Camera.main.GetComponent<CameraController>().isActive = false;
-
+   
     }
     public void ConstructOFF()
     {
+
         isActive = false;
         Camera.main.GetComponent<CameraController>().isActive = true;
         HideCells();

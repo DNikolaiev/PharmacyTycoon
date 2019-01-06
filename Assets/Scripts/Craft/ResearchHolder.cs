@@ -6,9 +6,7 @@ public class ResearchHolder : TalentHolder {
 
     public Text remainingTime;
     public Sprite inWorkSprite;
-    public GameObject lockedSprite;
     public Image touchHold;
-
     [SerializeField] private float timeToHoldTouch;
 
     public override void Hide()
@@ -31,11 +29,7 @@ public class ResearchHolder : TalentHolder {
             descriptionPanel.SetPanel(Talent,this);
     }
 
-    public void GetHint()
-    {
-        if (Player.instance.level < 5)
-            ButtonController.instance.hint.SetPanel(Input.mousePosition, "PRESS & HOLD to research");
-    }
+    
     public void Research()
     {
         if (!Researcher.instance.isResearching)
