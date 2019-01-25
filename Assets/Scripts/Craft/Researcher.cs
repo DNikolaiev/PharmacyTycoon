@@ -20,23 +20,12 @@ public class Researcher : MonoBehaviour {
     [SerializeField] private int stage;
     private int lastLevelSpotted;
     private Button activateButton;
-    private Button cancel;
-
+    private Player player;
    
-
-    public static Researcher instance = null;
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else Destroy(instance);
-    }
     private void Start()
     {
-        activateButton = ButtonController.instance.researcher;
-        cancel = ButtonController.instance.cancel;
+        player = GameController.instance.player;
+        activateButton = GameController.instance.buttons.researcher;
         researchScreen.SetActive(false);
       talents= talents.OrderBy(p => p.id).ToList();
       for(int i=0; i<talents.Count;i++)
@@ -51,7 +40,7 @@ public class Researcher : MonoBehaviour {
     }
     public void UpdateResearchScreen()
     {
-        if (Player.instance.level%2==0 && lastLevelSpotted != Player.instance.level)
+        if (player.level%2==0 && lastLevelSpotted != player.level)
         {
             for (int i=0; i<map[stage];i++)
             {
@@ -63,12 +52,12 @@ public class Researcher : MonoBehaviour {
             }
             if(stage<map.Length)
             stage++;
-            lastLevelSpotted = Player.instance.level;
+            lastLevelSpotted = player.level;
         }
     }
     public IEnumerator UnlockTalent(int id)
     {
-         timeToWait = talents[id].timeToResearch;
+         timeToWait = talents[id].timeToResearch/(ResearchSpeed/100);
         researchable = talents[id];
         isResearching = true;
         while(timeToWait>0)
@@ -83,9 +72,9 @@ public class Researcher : MonoBehaviour {
     }
     public void Research(int id)
     {
-        if (!isResearching && Player.instance.resources.ResearchPoints >= talents[id].description.buyPrice)
+        if (!isResearching && player.resources.ResearchPoints >= talents[id].description.buyPrice)
         {
-            Player.instance.resources.AddResearchPoints(-talents[id].description.buyPrice);
+            player.resources.AddResearchPoints(-talents[id].description.buyPrice);
             StartCoroutine(UnlockTalent(id));
         }
     }
@@ -100,26 +89,27 @@ public class Researcher : MonoBehaviour {
         UpdateResearchScreen();
         researchScreen.SetActive(true);
         CheckIfNewResearchesAvailiable();
-        ButtonController.instance.HideAllButtons();
-        ButtonController.instance.cancel.gameObject.SetActive(true);
+        GameController.instance.buttons.HideAllButtons();
+        GameController.instance.buttons.cancel.gameObject.SetActive(true);
         GameController.instance.isGameSceneEnabled = false;
 
     }
     public void ResearchOFF()
     {
         GameController.instance.isGameSceneEnabled = true;
-        DescriptionPanel.ReturnToOrigin();
+        
         researchScreen.SetActive(false);
 
-        ButtonController.instance.HideAllButtons();
-        ButtonController.instance.ShowAllButtons();
+        GameController.instance.buttons.HideAllButtons();
+        GameController.instance.buttons.ShowAllButtons();
         
         
 
     }
     public bool CheckIfNewResearchesAvailiable()
     {
-        if (lastLevelSpotted < Player.instance.level && Player.instance.level % 2 == 0 && lastLevelSpotted!=0)
+        Player player = GameController.instance.player;
+        if (lastLevelSpotted < player.level && player.level % 2 == 0 && lastLevelSpotted!=0)
             newResearchAvailiable = true;
         if (newResearchAvailiable)
         {

@@ -6,10 +6,10 @@ using UnityEngine.EventSystems;
 public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEnterHandler {
     public Recipe recipe;
     public Text quantitytxt;
+    public Text deathText;
     [SerializeField] Button action;
     [SerializeField] ConfirmationWindow confirm;
     [SerializeField] DragHandler dragger;
-    
     public  void SetDescription()
     {
         descriptionPanel.SetPanel(recipe, this);
@@ -17,12 +17,13 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
 
     private void Start()
     {
-        confirm = ButtonController.instance.confirm;
+        
+        confirm = GameController.instance.buttons.confirm;
         if (isUnlocked)
             lockedSprite.SetActive(false);
         if (dragger != null)
             InitializeDrag();
-        descriptionPanel = Crafter.instance.craftDescriptionPanel.GetComponent<DescriptionPanel>();
+        descriptionPanel = GameController.instance.buttons.GetDescriptionPanel(this);
         if (action != null)
             action.onClick.AddListener(SetDescription);
         if (recipe != null)
@@ -30,24 +31,23 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
     }
     public override void SetPanel()
     {
-        if (Crafter.instance.inventory.CheckIfWarehouseContains(recipe.description.Name))
-            quantitytxt.text = "x" + Crafter.instance.inventory.GetQuantity(recipe.description.Name).ToString();
-        else return;
-        Image[] images = GetComponentsInChildren<Image>();
-        for (int i=1; i<images.Length; i++)
+        if (GameController.instance.crafter.inventory.CheckIfWarehouseContains(recipe.description.Name))
         {
-            if (recipe.PTalents == null) return;
-                if (i > recipe.PTalents.Count)
-                {
-                    images[i].sprite = defaultSprite; continue;
-                }
-                else
-                    images[i].sprite = recipe.PTalents[i - 1].description.sprite;
+            if (quantitytxt != null)
+                quantitytxt.text = "x" + GameController.instance.crafter.inventory.GetQuantity(recipe.description.Name).ToString();
         }
+        else return;
+        if(deathText!=null)
+             deathText.text = "Death Rating - " + recipe.DeathRating + " %";
+        recipe.description.sprite = Resources.Load<Sprite>("Icons/Recipe/Liquid-1");
+        picture.sprite = recipe.description.sprite;
+        if(Nametxt!=null)
+        Nametxt.text = recipe.description.Name;
+
     }
     private void InitializeDrag()
     {
-        dragger.SetCanvas(Crafter.instance.craftPanel.transform.parent.GetComponent<Canvas>());
+        dragger.SetCanvas(GameController.instance.crafter.view.craftPanel.transform.parent.GetComponent<Canvas>());
         dragger.onBeginMethod += OnBeginDrag;
         dragger.onEndMethod += OnEndDrag;
     }
@@ -55,23 +55,29 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
     {
         if (dragger.dragItem != null) return;
         GameObject copy = Instantiate(gameObject, transform.position, Quaternion.identity, action.transform.parent.parent.parent.parent);
-        copy.GetComponent<Image>().raycastTarget = false;
+        copy.GetComponent<RecipeHolder>().picture.raycastTarget = false;
+        copy.transform.SetParent(GameController.instance.crafter.view.transform.parent);
 
         dragger.SetDragItem(copy);
     }
     private void OnEndDrag()
     {
       
-        if (!Crafter.instance.holderSelected.isUnlocked || (Crafter.instance.holderSelected == null && dragger.dragItem != null))
+        if (!GameController.instance.crafter.view.holderSelected.isUnlocked || (GameController.instance.crafter.view.holderSelected == null && dragger.dragItem != null))
         {
             dragger.ResetDragItem();
             return;
         }
 
 
-        if (Crafter.instance.holderSelected != null)
+        if (GameController.instance.crafter.view.holderSelected != null && GameController.instance.crafter.view.recipeHolderSelected==null)
         {
-            Crafter.instance.controller.OnAddRecipe(this);
+            GameController.instance.crafter.controller.OnAddRecipe(this);
+            dragger.ResetDragItem();
+        }
+        else if(GameController.instance.crafter.view.recipeHolderSelected!=null)
+        {
+            GameController.instance.crafter.controller.OnAddRecipe(recipe);
             dragger.ResetDragItem();
         }
 
@@ -83,6 +89,9 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
     {
         if (dragger != null)
             return;
+        if (Input.GetMouseButton(0)) 
+           GameController.instance.crafter.controller.OnSelectHolder(this);
+
     }
 
 
@@ -95,26 +104,28 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
     }
     public void OnDelete()
     {
+        GameController.instance.crafter.view.DisableAllParticles();
         confirm.SetPanel("Delete " + recipe.description.Name + " ?");
         confirm.Activate(true);
         confirm.ok.onClick.AddListener(delegate { Delete(); });
         confirm.cancel.onClick.AddListener(Abort);
-        ButtonController.instance.cancel.gameObject.SetActive(false);
+        GameController.instance.buttons.cancel.gameObject.SetActive(false);
     }
     private void Abort()
     {
         confirm.Activate(false);
         confirm.Hide();
-        ButtonController.instance.cancel.gameObject.SetActive(true);
+        GameController.instance.buttons.cancel.gameObject.SetActive(true);
+        GameController.instance.crafter.view.EmitLastParticles();
     }
     private void Delete()
     {
-        var crafter = Crafter.instance;
+        var crafter = GameController.instance.crafter;
         crafter.isPrescripted = false;
         crafter.recipeSelected = null;
         crafter.inventory.Delete(recipe.description.Name);
-        crafter.PopulateRecipeList();
-        crafter.capacity.text = crafter.inventory.GetNumberOfElements().ToString() + " / " + crafter.inventory.capacity.ToString(); // refresh capacity text
+        crafter.PopulateRecipeList(crafter.view.recipesListView, crafter.view.recipeInList);
+        crafter.view.capacity.text = crafter.inventory.GetNumberOfElements().ToString() + " / " + crafter.inventory.capacity.ToString(); // refresh capacity text
         Abort();
         Destroy(gameObject);
     }

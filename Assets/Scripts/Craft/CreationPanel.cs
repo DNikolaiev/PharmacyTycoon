@@ -19,20 +19,24 @@ public class CreationPanel : Panel {
     public int maxQuantity = 500;
     private ColorInterpolator interpol;
     private Characteristics characteristics;
+    private Crafter crafter;
     private void Awake()
     {
+
         interpol = GetComponent<ColorInterpolator>();
+        gameObject.SetActive(true);
     }
     public override void Hide()
     {
         blackBack.enabled = false;
-      
+        crafter.view.EmitLastParticles();
          gameObject.SetActive(false);
-        ButtonController.instance.cancel.gameObject.SetActive(true);
+        GameController.instance.buttons.cancel.gameObject.SetActive(true);
     }
 
     public  void SetPanel(Characteristics characteristics)
     {
+        crafter.view.DisableAllParticles();
         blackBack.enabled = true;
         gameObject.SetActive(true);
         slider.value = 0;
@@ -40,22 +44,21 @@ public class CreationPanel : Panel {
         popAnim.Play("Pop_out_CreationPanel");
         this.characteristics = characteristics;
         rPanel.SetPanel(characteristics);
-        rPanel.researchPoints.text = Crafter.instance.CalculateResearchPoints(Crafter.instance.selectedTalents).ToString();
-        Recipe testRecipe = Crafter.instance.RecognizeRecipe();
+        rPanel.researchPoints.text = crafter.CalculateResearchPoints(crafter.selectedTalents).ToString();
+        Recipe testRecipe = crafter.RecognizeRecipe();
 
         if (testRecipe != null)
         {
-            Crafter.instance.recipeSelected = testRecipe;
-            Debug.Log(Crafter.instance.recipeSelected.description.Name);
-            Crafter.instance.isPrescripted = true;
+            crafter.recipeSelected = testRecipe;
+            crafter.isPrescripted = true;
         }
-        if (Crafter.instance.isPrescripted)
+        if (crafter.isPrescripted)
         {
             ok.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
             rPanel.researchPoints.gameObject.SetActive(false);
             rPanel.rpImg.gameObject.SetActive(false);
             input.gameObject.SetActive(false);
-            header.text = Crafter.instance.recipeSelected.description.Name;
+            header.text = crafter.recipeSelected.description.Name;
         }
         else
         {
@@ -71,6 +74,7 @@ public class CreationPanel : Panel {
 
     // Use this for initialization
     void Start () {
+        crafter = GameController.instance.crafter;
         blackBack.enabled = false;
         redBorder.enabled = false;
         gameObject.SetActive(false);
@@ -103,9 +107,9 @@ public class CreationPanel : Panel {
     public void Accept()
     {
 
-        if (Crafter.instance.isPrescripted)
+        if (crafter.isPrescripted)
         {
-            string result = Crafter.instance.Craft(quantity);
+            string result = crafter.Craft(quantity);
             if (result == "TRUE")
                 Hide();
             else
@@ -130,8 +134,10 @@ public class CreationPanel : Panel {
                 redBorder.enabled = true;
                 return;
             }
+            int researchPointsNeeded = crafter.CalculateResearchPoints(crafter.selectedTalents);
+          
             redBorder.enabled = false;
-            string result = Crafter.instance.Craft(recipeName, quantity);
+            string result = crafter.Craft(recipeName, quantity);
             if (result == "TRUE") 
                 Hide();
             else if (result=="FALSE")
@@ -149,7 +155,7 @@ public class CreationPanel : Panel {
     
     private string GenerateName()
     {
-        return ("Recipe #" + (Crafter.instance.inventory.GetNumberOfElements()+1).ToString());
+        return ("Recipe #" + (crafter.inventory.GetNumberOfElements()+1).ToString());
     }
     private void Update()
     {

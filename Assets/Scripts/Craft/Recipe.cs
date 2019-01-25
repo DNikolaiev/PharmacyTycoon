@@ -17,7 +17,6 @@ public class Recipe {
         description = new Description();
         description.Name = Name;
         this.characteristics=characteristics;
-        this.characteristics.healingRate = ConvertHealingRate(characteristics.healingRate);
         deathRating = 0;
         this.isLiquid = isLiquid;
         this.talents.AddRange(talents);
@@ -25,10 +24,7 @@ public class Recipe {
         secondaryTalents = this.talents.Where(x => !x.isPrimary).ToList(); 
     }
 
-    private int ConvertHealingRate(int healingPercent)
-    {
-        return healingPercent * 100;
-    }
+   
     public int DeathRating
     {
         get

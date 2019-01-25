@@ -11,6 +11,7 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
     private int clickCount = 0;
     private float clickdelay = 0.5f;
     private float clickTime;
+    private Crafter crafter;
     public override void SetDescription()
     {
         descriptionPanel.SetPanel(Talent,this);
@@ -18,13 +19,14 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
     
     private void Start()
     {
+        crafter = GameController.instance.crafter;
         if (isUnlocked)
             lockedSprite.SetActive(false);
         if (glowImg != null)
             glowImg.gameObject.SetActive(false);
         if(dragger!=null)
         InitializeDrag();
-        descriptionPanel = Crafter.instance.craftDescriptionPanel.GetComponent<DescriptionPanel>();
+        descriptionPanel = GameController.instance.buttons.GetDescriptionPanel(this);
         if (action!=null)
         action.onClick.AddListener(SetDescription);
         if (Talent != null)
@@ -32,7 +34,7 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
     }
     private void InitializeDrag()
     {
-        dragger.SetCanvas(Crafter.instance.craftPanel.transform.parent.GetComponent<Canvas>());
+        dragger.SetCanvas(crafter.view.craftPanel.transform.parent.GetComponent<Canvas>());
         dragger.onBeginMethod += OnBeginDrag;
         dragger.onEndMethod += OnEndDrag;
     }
@@ -47,21 +49,21 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
     private void OnEndDrag()
     {
         if (dragger == null) return;
-        if (Crafter.instance.holderSelected == null && dragger.dragItem!=null)
+        if (crafter.view.holderSelected == null && dragger.dragItem!=null)
         {
             dragger.ResetDragItem(); return;
         }
-        if ((Crafter.instance.holderSelected.tag == "PrimaryHolder" && !Talent.isPrimary)
-            || (Crafter.instance.holderSelected.tag == "SecondaryHolder" && Talent.isPrimary) 
-            || !Crafter.instance.holderSelected.isUnlocked) 
+        if ((crafter.view.holderSelected.tag == "PrimaryHolder" && !Talent.isPrimary)
+            || (crafter.view.holderSelected.tag == "SecondaryHolder" && Talent.isPrimary) 
+            || !crafter.view.holderSelected.isUnlocked) 
         {
             dragger.ResetDragItem();
             return;
         }
      
         
-        if (Crafter.instance.holderSelected!=null) { 
-                Crafter.instance.controller.OnAddTalent(this);
+        if (crafter.view.holderSelected !=null) {
+            crafter.controller.OnAddTalent(this);
                 dragger.ResetDragItem();
             }
 
@@ -74,7 +76,7 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
         if (dragger != null )
             return;
         if(Input.GetMouseButton(0))
-        Crafter.instance.controller.OnSelectHolder(this);
+            crafter.controller.OnSelectHolder(this);
         
     }
     
@@ -84,16 +86,16 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
         if (dragger != null)
             return;
         SetDescription();
-        Crafter.instance.DeleteAllTalents();
+        crafter.DeleteAllTalents(crafter.view.talentsListView);
         if (tag=="PrimaryHolder")
         {
-            Crafter.instance.PopulateTalentList(true);
-            Crafter.instance.HighlightHolders();
+            crafter.PopulateTalentList(crafter.view.talentsListView, crafter.view.elementInList, true);
+            crafter.view.HighlightHolders();
         }
         else if (tag=="SecondaryHolder")
         {
-            Crafter.instance.PopulateTalentList(false);
-            Crafter.instance.HighlightHolders(false);
+            crafter.PopulateTalentList(crafter.view.talentsListView, crafter.view.elementInList, false);
+            crafter.view.HighlightHolders(false);
         }
         if (Talent == null) return; // double tap segment. Double tap = reset talent;
         clickCount++;
@@ -103,13 +105,13 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
             clickTime = 0;
             clickCount = 0;
             picture.sprite = defaultSprite;
-            Crafter.instance.ResetTalent(Talent);
+            crafter.ResetTalent(Talent);
             Talent = null;
-            Crafter.instance.isPrescripted = false;
+            crafter.isPrescripted = false;
             if (tag == "PrimaryHolder")
-                Crafter.instance.HighlightHolders();
+                crafter.view.HighlightHolders();
             else if (tag == "SecondaryHolder")
-                Crafter.instance.HighlightHolders(false);
+                crafter.view.HighlightHolders(false);
         }
         else if (clickCount > 2 || Time.time - clickTime > clickdelay)
         {

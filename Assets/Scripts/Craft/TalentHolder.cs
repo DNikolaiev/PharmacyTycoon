@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 public  class TalentHolder : Holder, IPointerDownHandler, IDescription {
     [SerializeField] private Talent talent;
+    [SerializeField] private bool generateDescription;
     public Talent Talent { get { return talent; } set { talent = value; UpdateView(); } }
-    
     public Image glowImg;
    
  
@@ -20,10 +19,17 @@ public  class TalentHolder : Holder, IPointerDownHandler, IDescription {
     }
     protected void UpdateView()
     {
+
         if (talent == null)
+        {
             picture.sprite = defaultSprite;
+        }
+
         else
-        picture.sprite = talent.description.sprite;
+        {
+            picture.sprite = talent.description.sprite;
+        }
+        
     }
    
     public virtual void OnPointerDown(PointerEventData eventData)
@@ -37,8 +43,15 @@ public  class TalentHolder : Holder, IPointerDownHandler, IDescription {
         if (Talent != null)
             picture.sprite = Talent.description.sprite;
     }
+    private void Start()
+    {
+        if (generateDescription)
+        {
+            GetComponent<Button>().onClick.AddListener(delegate { GameController.instance.buttons.GetHint(Talent.description.Name + "\n" + "Cures: " + Talent.cures); });
+        }
+    }
 
-   
+
 
 
 }

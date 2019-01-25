@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 65181773016602418}
   - component: {fileID: 114982336283908908}
   - component: {fileID: 114955711434056262}
+  - component: {fileID: 114321412687575194}
   m_Layer: 10
   m_Name: PlantFactory
   m_TagString: Untagged
@@ -55,6 +56,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 7, y: 7, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114321412687575194
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1452213480070540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba7bd1fe1553234c98844eeb5c86977, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114955711434056262
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -79,12 +91,14 @@ MonoBehaviour:
   room: {fileID: 0}
   lvl: 1
   isBusy: 0
-  direction: {x: 0, y: 0}
   resourcePerTime: 100
   upgradedResourcePerTime: 50
   upgradedStorage: 50
   productionTime: 10
   finishedProductionImage: {fileID: 0}
+  timeInWork: 0
+  interpol: {fileID: 114321412687575194}
+  currentStorage: 200
 --- !u!114 &114982336283908908
 MonoBehaviour:
   m_ObjectHideFlags: 1

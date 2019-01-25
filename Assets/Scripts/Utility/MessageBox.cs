@@ -7,12 +7,12 @@ public  class MessageBox:MonoBehaviour  {
 
     public Image image;
     public Text text;
-    public Animation animation;
+    public Animation anim;
     private RectTransform rect;
     public IEnumerator Hide()
     {
         yield return new WaitForSeconds(1.75f);
-        animation.Play("MessageBox_Hide");
+        anim.Play("MessageBox_Hide");
     }
 
     public  void Show(string txt, Sprite sprite=null)
@@ -20,7 +20,7 @@ public  class MessageBox:MonoBehaviour  {
         image.enabled = (sprite == null) ? false : true;
         text.text = txt;
         image.sprite = sprite;
-        animation.Play("MessageBox_Show");
+        anim.Play("MessageBox_Show");
         StartCoroutine(Hide());
     }
     private void Awake()
@@ -29,6 +29,7 @@ public  class MessageBox:MonoBehaviour  {
     }
     private void Start()
     {
+        anim = GetComponent<Animation>();
         ReturnToOrigin();
     }
     public void ReturnToOrigin()

@@ -6,7 +6,7 @@ public class Validator  {
 
 	public bool ValidateRecipeName(string name)
     {
-        if (!Crafter.instance.inventory.CheckIfWarehouseContains(name))
+        if (!GameController.instance.crafter.inventory.CheckIfWarehouseContains(name))
             return true;
         return false;
     }

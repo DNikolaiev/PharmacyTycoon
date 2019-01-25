@@ -7,13 +7,24 @@ public class ResearchHolder : TalentHolder {
     public Text remainingTime;
     public Sprite inWorkSprite;
     public Image touchHold;
+    public ResourcePanel resourcePanel;
+    public ResearchPanel researchPanel;
+    private Researcher researcher;
+    
     [SerializeField] private float timeToHoldTouch;
 
     public override void Hide()
     {
         throw new System.NotImplementedException();
     }
-
+    private void Start()
+    {
+        researcher = GameController.instance.researcher;
+        descriptionPanel = GameController.instance.buttons.GetDescriptionPanel(this);
+       
+        researchPanel = descriptionPanel.transform.GetChild(1).GetComponent<ResearchPanel>();
+        resourcePanel = descriptionPanel.transform.GetChild(2).GetComponent<ResourcePanel>();
+    }
     public override void SetPanel()
     {
         if (!Talent.isUnlocked)
@@ -25,16 +36,26 @@ public class ResearchHolder : TalentHolder {
     }
     public override void SetDescription()
     {
-        if (!lockedSprite.activeInHierarchy)
-            descriptionPanel.SetPanel(Talent,this);
+        if (!lockedSprite.activeInHierarchy && !Talent.isUnlocked)
+        {
+            descriptionPanel.SetPanel(Talent, this);
+            researchPanel.SetPanel(Talent);
+            resourcePanel.Hide();
+        }
+        else if (!lockedSprite.activeInHierarchy && Talent.isUnlocked)
+        {
+            descriptionPanel.SetPanel(Talent, this);
+            researchPanel.Hide();
+            resourcePanel.SetPanel(Talent.characteristics);
+        }
     }
 
     
     public void Research()
     {
-        if (!Researcher.instance.isResearching)
+        if (!researcher.isResearching)
         {
-            Researcher.instance.Research(Talent.id);
+            researcher.Research(Talent.id);
             picture.sprite = inWorkSprite;
         }
     }
@@ -42,8 +63,8 @@ public class ResearchHolder : TalentHolder {
     {
         if (Input.GetMouseButton(0) && ClickedInsideHolder())
             descriptionPanel.GetComponent<PanelMask>().enabled = false;
-        if (Input.GetMouseButton(0) && !Researcher.instance.isResearching && ClickedInsideHolder() && !Talent.isUnlocked
-            && !lockedSprite.activeInHierarchy && ClickedInsideHolder() && Player.instance.resources.ResearchPoints >= Talent.description.buyPrice)
+        if (Input.GetMouseButton(0) && !researcher.isResearching && ClickedInsideHolder() && !Talent.isUnlocked
+            && !lockedSprite.activeInHierarchy && ClickedInsideHolder() && GameController.instance.player.resources.ResearchPoints >= Talent.description.buyPrice)
         {
             descriptionPanel.GetComponent<PanelMask>().enabled = false;
             this.touchHold.fillAmount += 1f / timeToHoldTouch * Time.deltaTime;
@@ -62,11 +83,11 @@ public class ResearchHolder : TalentHolder {
             descriptionPanel.GetComponent<PanelMask>().enabled = false;
         }
 
-        if (remainingTime != null && Researcher.instance.researchable == this.Talent
-            && Researcher.instance.isResearching)
+        if (remainingTime != null && researcher.researchable == this.Talent
+            && researcher.isResearching)
         {
             remainingTime.gameObject.SetActive(true);
-            remainingTime.text = Researcher.instance.timeToWait.ToString();
+            remainingTime.text = researcher.timeToWait.ToString();
         }
         else if (remainingTime.gameObject.activeInHierarchy)
         {
