@@ -9,7 +9,7 @@ public class Description {
     public string description;
     public int buyPrice;
     public int sellPrice;
-    public Sprite sprite;
-    public Sprite upgradedSprite;
-    public Sprite mergedSprite;
+   [FullSerializer.fsIgnore] public Sprite sprite;
+   [FullSerializer.fsIgnore] public Sprite upgradedSprite;
+   [FullSerializer.fsIgnore] public Sprite mergedSprite;
 }

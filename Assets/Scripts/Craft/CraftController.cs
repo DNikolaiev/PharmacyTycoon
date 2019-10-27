@@ -5,7 +5,7 @@ using UnityEngine;
 public class CraftController : MonoBehaviour {
     public CreationPanel cPanel;
     private Crafter crafter;
-   
+    private bool tutorialVar;
     private void Start()
     {
         crafter = GameController.instance.crafter;
@@ -20,6 +20,8 @@ public class CraftController : MonoBehaviour {
         }
         if (crafter.selectedTalents.Count >= 1 && counter>0)
         {
+            crafter.RecognizeRecipe();
+            
             cPanel.SetPanel(crafter.GetCharacteristics());
             GameController.instance.buttons.cancel.gameObject.SetActive(false);
         }
@@ -40,6 +42,11 @@ public class CraftController : MonoBehaviour {
         crafter.view.holderSelected.glowImg.gameObject.SetActive(false);
         crafter.view.craftDescriptionPanel.SetPanel(talentHolder.Talent, (CraftHolder)talentHolder);
         crafter.AssignTalent(talentHolder.Talent);
+        if (!tutorialVar)
+        {
+            tutorialVar = true;
+            crafter.tutorial.ContinueTutorial();
+        }
         Destroy(talentHolder.transform.parent.parent.gameObject);
     }
     public void OnAddRecipe(RecipeHolder recipeHolder)
@@ -49,18 +56,20 @@ public class CraftController : MonoBehaviour {
         crafter.AssignRecipe(recipeHolder.recipe);
    
     }
-    public void OnAddRecipe(Recipe recipe)
-    {
-        crafter.recipeSelected = recipe;
-        crafter.view.recipeHolderSelected.GetComponent<RecipeHolder>().recipe = recipe;
-        crafter.view.recipeHolderSelected.GetComponent<RecipeHolder>().SetPanel();
-        crafter.view.craftPanel.transform.parent.GetComponentInChildren<LaboratoryPanel>().SetValueToBar();
-        
-    }
+
     public void OnSliderChange(float value)
     {
+        if (crafter.isPrescripted) return;
         if (value == 0)
+        {
+            
             crafter.isLiquid = true;
-        else crafter.isLiquid = false;
+            crafter.Recombine(crafter.selectedTalents);
+        }
+        else
+        {
+            crafter.isLiquid = false;
+            crafter.Recombine(crafter.selectedTalents);
+        }
     }
 }

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8bf356eed90b454bb8d660df9c5b902, type: 3}
+  m_Name: Quest1
+  m_EditorClassIdentifier: 
+  duration: 89
+  Name: Money don't grow on trees
+  description: 'There is a sufficiency in the world for man''s need but not for man''s
+    greed. '
+  goal:
+    description: Collect Money
+    objective: 11
+    currentAmount: 0
+    neededAmount: 2000
+    isCompleted: 0
+  reward:
+    experiencePercentage: 20
+    money: 0
+    herbs: 100
+    chems: 100
+    plastic: 100
+    researchPoints: 10
+    coins: 1
+  isActive: 0

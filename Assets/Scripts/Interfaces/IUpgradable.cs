@@ -4,6 +4,6 @@ using UnityEngine;
 
  public interface IUpgradable {
     
-    void Upgrade(int level);
-    void IncreaseStats(int lvl);
+    void Upgrade(int level, bool chargePlayer=true);
+    void IncreaseStats(int lvl, bool expand=true);
 }

@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public class ResearchHolder : TalentHolder {
+using UnityEngine.EventSystems;
+public class ResearchHolder : TalentHolder, IPointerUpHandler {
 
     public Text remainingTime;
     public Sprite inWorkSprite;
     public Image touchHold;
+    public ParticleSystem onResearch;
     public ResourcePanel resourcePanel;
     public ResearchPanel researchPanel;
     private Researcher researcher;
-    
+    [SerializeField] Animator anim;
     [SerializeField] private float timeToHoldTouch;
 
     public override void Hide()
@@ -27,12 +29,20 @@ public class ResearchHolder : TalentHolder {
     }
     public override void SetPanel()
     {
-        if (!Talent.isUnlocked)
+        Debug.Log("ResearchHolder set panel");
+        if (!Talent.isUnlocked && Talent.canBeUnlocked)
         {
+            picture.enabled = true;
             picture.sprite = Talent.lockedSprite;
+            lockedSprite.SetActive(false);
+        }
+        else if (!Talent.isUnlocked && !Talent.canBeUnlocked)
+        {
+            picture.enabled = false;
             lockedSprite.SetActive(true);
         }
-        else { picture.sprite = Talent.description.sprite; lockedSprite.SetActive(false); }
+      else { picture.enabled = true; picture.sprite = Talent.description.sprite; lockedSprite.SetActive(false); }
+       
     }
     public override void SetDescription()
     {
@@ -87,7 +97,7 @@ public class ResearchHolder : TalentHolder {
             && researcher.isResearching)
         {
             remainingTime.gameObject.SetActive(true);
-            remainingTime.text = researcher.timeToWait.ToString();
+            remainingTime.text = Mathf.RoundToInt(researcher.timeToWait).ToString();
         }
         else if (remainingTime.gameObject.activeInHierarchy)
         {
@@ -96,10 +106,34 @@ public class ResearchHolder : TalentHolder {
     }
     public void ChangeHolderPicture(bool state)
     {
+        if (Talent == null) return;
         if (state == true && Talent.isUnlocked)
         {
+            picture.enabled = true;
             picture.sprite = Talent.description.sprite;
         }
-        else picture.sprite = Talent.lockedSprite;
+        else if (state==true&&Talent.canBeUnlocked)
+        {
+            picture.enabled = true;
+            picture.sprite = Talent.lockedSprite;
+        }
+        else
+        {
+            picture.enabled = false;
+        }
+    }
+
+
+
+    
+   public override void OnPointerDown(PointerEventData eventData)
+    {
+        base.OnPointerDown(eventData);
+        anim.SetBool("getBig", true);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        anim.SetBool("getBig", false);
     }
 }

@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 [System.Serializable]
-public class Talent: MonoBehaviour  {
+[CreateAssetMenu(fileName ="NewTalent")]
+public class Talent: ScriptableObject  {
 
     public Description description;
-    public Sprite lockedSprite;
+   [FullSerializer.fsIgnore] public Sprite lockedSprite;
     public bool isPrimary;
-   [HideInInspector] public bool isSelected;
+   [FullSerializer.fsIgnore] public bool isSelected;
     public string cures;
     public List<string> combinations;
+    public List<string> diseases;
     public int id;
     public float timeToResearch;
     public bool isUnlocked;
+    public bool canBeUnlocked;
     public Characteristics characteristics;
     
     

@@ -18,5 +18,28 @@ public class RoomManager : MonoBehaviour
     {
         rooms.Add(room);
     }
-
+    public List<SceneObject> GetAllSceneObjects()
+    {
+        List<SceneObject> sceneObjects = new List<SceneObject>();
+        foreach(Room room in rooms)
+        {
+            if (room == factory) continue;
+            foreach(SceneObject obj in room.info.objectsInRoom)
+            {
+                sceneObjects.Add(obj);
+            }
+        }
+        return sceneObjects;
+    }
+    public bool  SceneHasObjectOfType<T>()
+    {
+        foreach (SceneObject item in GetAllSceneObjects())
+        {
+            if(item.GetType() == typeof(T))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

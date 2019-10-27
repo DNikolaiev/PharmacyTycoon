@@ -41,12 +41,16 @@ public  class TalentHolder : Holder, IPointerDownHandler, IDescription {
     public override void SetPanel()
     {
         if (Talent != null)
+        {
             picture.sprite = Talent.description.sprite;
+            Start();
+        }
     }
     private void Start()
     {
-        if (generateDescription)
+        if (generateDescription && talent!=null)
         {
+            Debug.Log("123");
             GetComponent<Button>().onClick.AddListener(delegate { GameController.instance.buttons.GetHint(Talent.description.Name + "\n" + "Cures: " + Talent.cures); });
         }
     }

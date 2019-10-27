@@ -8,9 +8,12 @@ public class PlantFactory : Manufactory{
     {
         resourceStorage.ExpandPlantsStorage(amount);
     }
-    protected override void GainResources(int amount)
+    protected override bool GainResources(int amount)
     {
-        resourceStorage.AddHealingPlants(amount);
+        if (resourceStorage.AddHealingPlants(amount) != 0)
+            return true;
+        return false;
+
     }
 
     protected override void LoseResources(int amount)

@@ -6,10 +6,15 @@ public class BarFiller : MonoBehaviour {
 
     public Image toxicityBar;
     public Image healingBar;
+    public bool grabText = true;
+    public bool initializeWithZero = true;
     public bool  coroutineRunning;
+    public float fillSpeed;
     private void Start()
     {
+        if(toxicityBar!=null && initializeWithZero)
         toxicityBar.fillAmount = 0;
+        if(healingBar!=null && initializeWithZero)
         healingBar.fillAmount = 0;
     }
     public void SetValueToBarPercent(float value, Image img)
@@ -20,48 +25,88 @@ public class BarFiller : MonoBehaviour {
         img.fillAmount = percentValue;
        
       Text  possibleText = img.transform.parent.GetComponentInChildren<Text>();
-        if (possibleText!=null)
+        if (possibleText!=null && grabText)
         {
-            possibleText.text = (value + "%").ToString();
+            possibleText.text = ((int)value + "%").ToString();
         }
             
     }
-    public IEnumerator FillWithDelay(Image img, float endAmount) // img - delayed image, endAmount - final fillAmount 
+    public void SetValueToBarScalar(float value, Image img, float maxValue)
     {
-        coroutineRunning = true;
-        Text possibleText = img.transform.parent.GetComponentInChildren<Text>();
-        while (img.fillAmount > endAmount)
-        {
-            if (possibleText != null)
-            {
-                possibleText.text = ((int)(img.fillAmount * 100) + "%").ToString();
-            }
-            img.fillAmount -= 0.005f;
-           
-            yield return null;
-        }
-        coroutineRunning = false;
-    }
-    public void SetValueToBarScalar(float value, Image img)
-    {
+        img.fillAmount = (float)(value / maxValue);
 
-        img.fillAmount = value / 100;
         Text possibleText = img.transform.parent.GetComponentInChildren<Text>();
-        if (possibleText != null)
+        if (possibleText != null && grabText)
         {
             possibleText.text = (value).ToString();
         }
 
     }
+    public IEnumerator ReduceOverTime(Image img, float endAmount, float maxValue, bool isPercentage=true) // img - delayed image, endAmount - final fillAmount 
+    {
+        coroutineRunning = true;
+        endAmount = endAmount / maxValue;
+        Text possibleText = img.transform.parent.GetComponentInChildren<Text>();
+        while (img.fillAmount > endAmount)
+        {
+            if (possibleText != null)
+            {
+                if(isPercentage)
+                possibleText.text = ((int)(img.fillAmount * maxValue) + "%").ToString();
+                else
+                {
+                    possibleText.text = ((int)(img.fillAmount * maxValue)).ToString();
+                }
+            }
+            img.fillAmount -= fillSpeed*Time.deltaTime;
+           
+            yield return null;
+        }
+        if(isPercentage)
+        possibleText.text = (endAmount * maxValue).ToString() + " %";
+        else possibleText.text = (endAmount * maxValue).ToString();
+        coroutineRunning = false;
+    }
+    public IEnumerator IncreaseOverTime(Image img, float endAmount, float maxValue, bool isPercentage=true) // img - delayed image, endAmount - final fillAmount 
+    {
+        coroutineRunning = true;
+        endAmount = endAmount / maxValue;
+        Text possibleText = img.transform.parent.GetComponentInChildren<Text>();
+        while (img.fillAmount <= endAmount)
+        {
+            if (possibleText != null)
+            {
+                if (isPercentage)
+                    possibleText.text = ((int)(img.fillAmount * maxValue) + "%").ToString();
+                else
+                {
+                    possibleText.text = ((int)(img.fillAmount * maxValue)).ToString();
+                }
+            }
+            img.fillAmount += fillSpeed*Time.deltaTime;
+
+            yield return null;
+        }
+        if (possibleText != null)
+        {
+            if (isPercentage)
+                possibleText.text = (endAmount * maxValue).ToString() + " %";
+            else possibleText.text = (endAmount * maxValue).ToString();
+        }
+        coroutineRunning = false;
+    }
+   
     private void OnEnable()
     {
-        Text possibleText = toxicityBar.transform.parent.GetComponentInChildren<Text>();
-        Text possibleText2 = healingBar.transform.parent.GetComponentInChildren<Text>();
-        if (possibleText!=null)
-        possibleText.text = "0 %";
-        if (possibleText2 != null)
-            possibleText2.text = "0 %";
-        toxicityBar.fillAmount = 0;
-        healingBar.fillAmount = 0;
+        if (toxicityBar != null && initializeWithZero)
+        {
+            SetValueToBarPercent(0, toxicityBar);
+        }
+        if (healingBar != null && initializeWithZero)
+        {
+            SetValueToBarScalar(0, healingBar,100);
+        }
+        
+       
     }
 }

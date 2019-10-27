@@ -1,8 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 [System.Serializable]
-public struct WorldPos { public int x; public int y; };
+public struct WorldPos
+{
+    public int x; public int y;
+    public static bool operator ==(WorldPos pos1, WorldPos pos2)
+    {
+        return (pos1.x == pos2.x && pos1.y == pos2.y);
+    }
+    public static bool operator !=(WorldPos pos1, WorldPos pos2)
+    {
+        return (pos1.x != pos2.x || pos1.y != pos2.y);
+    }
+
+};
 public class Cell : MonoBehaviour {
 
     public Color defaultColor;
@@ -32,7 +45,7 @@ public class Cell : MonoBehaviour {
     }
     private void Select() 
     {
-        if (isOccupied)
+        if (isOccupied || EventSystem.current.IsPointerOverGameObject())
             return;
        
         foreach (Cell cell in room.info.cells)

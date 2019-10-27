@@ -13,11 +13,16 @@ public class ConfirmationWindow : Panel {
     {
         cancel.onClick.RemoveAllListeners();
         ok.onClick.RemoveAllListeners();
+        if(GameController.instance!=null)
+        GameController.instance.IsGameSceneEnabled = true;
         Activate(false);
+        
     }
     public void SetPanel(string txt)
     {
         confirmText.text = txt;
+        if (GameController.instance != null)
+            GameController.instance.IsGameSceneEnabled = false;
     }
     public override void SetPanel()
     {

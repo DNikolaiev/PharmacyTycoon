@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4ab0dda63e8c04469d6b8fa98497126, type: 3}
+  m_Name: WorldCamera
+  m_EditorClassIdentifier: 
+  minZoomRange: 40
+  maxZoomRange: 65
+  zoomSpeed: 0.1
+  dragSpeed: 1
+  xOffset: 1
+  yOffset: 1

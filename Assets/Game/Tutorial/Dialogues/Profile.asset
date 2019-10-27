@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fa30602c0850f4fac0d10063ac45f0, type: 3}
+  m_Name: Profile
+  m_EditorClassIdentifier: 
+  dialogueName: Profile
+  phrases:
+  - Here you can find detailed information about game progress.
+  - The Quests tab shows active contracts that require your attention! Be quick, otherwise
+    they can disappear.
+  - "After completing the contract, don\u2019t forget to visit Quests and collect
+    your reward!"
+  - The Finances tab helps you to get an overview about current financial situation
+    and prognoses your further options.
+  counter: -1

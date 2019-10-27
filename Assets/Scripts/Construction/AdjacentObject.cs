@@ -21,12 +21,27 @@ public class AdjacentObject : MonoBehaviour {
         position.x = cell.position.x;
         position.y = cell.position.y;
     }
+    public void DestroyConnection(AdjacentObject adj)
+    {
+        if (list.Contains(adj))
+            list.Remove(adj);
+        if (rightObj == adj)
+            rightObj = null;
+        if (leftObj == adj)
+            leftObj = null;
+        if (upperObj == adj)
+            upperObj = null;
+        if (lowerObj == adj)
+            lowerObj = null;
+        
+    }
     public void UpdateConnections(Cell cell)
     {
         AssignPosition(cell);
         AdjacentObject[] adjObjects = FindObjectsOfType<AdjacentObject>();
         foreach (AdjacentObject obj in adjObjects)
         {
+            
             if (obj.position.x + 1 == this.position.x && obj.position.y == this.position.y)
             {
                 leftObj = obj;

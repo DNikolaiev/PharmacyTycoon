@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fa30602c0850f4fac0d10063ac45f0, type: 3}
+  m_Name: General
+  m_EditorClassIdentifier: 
+  dialogueName: General
+  phrases:
+  - 'Welcome to your pharmaceutical factory! Produce resources, research and craft
+    new medicaments in order to save the world. '
+  - "blockhighlightedLet\u2019s start with construction. Click the  button."
+  - 
+  - Great job! You did it. Keep in mind, more rooms - more expences!
+  - You are the boss. Specific drugs can be researched according to your instructions.
+  - blockhighlightedOpen research screen to see what drugs we are able to unlock.
+  - 
+  - "blockhighlightedPerfect, now it\u2019s time to craft!"
+  - 
+  - blockhighlightedYou can sell crafted medicaments all around the world! Click the
+    button to see a world map.
+  - 
+  - "Excellent! You completed basic tutorial, now let\u2019s make some money."
+  - highlightedReplenish resources in order to produce more medicine
+  counter: 12

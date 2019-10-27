@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ResearchCenter : Manufactory {
     //storage = research speed
-
+    public ParticleSystem onGenerate;
     protected override void Start()
     {
         base.Start();
@@ -29,16 +29,23 @@ public class ResearchCenter : Manufactory {
             yield return new WaitForSeconds(1);
         }
         isBusy = false;
-       //add here some effect
+        if (onGenerate != null && GameController.instance.IsGameSceneEnabled)
+        {
+            onGenerate.gameObject.SetActive(true);
+            onGenerate.Play();
+          
+        }
         yield return null;
     }
     protected override void Expand(int amount)
     {
         GameController.instance.researcher.EnhanceResearchTime(amount);
     }
-    protected override void GainResources(int amount)
+    protected override bool GainResources(int amount)
     {
-        resourceStorage.AddResearchPoints(amount);
+        if (resourceStorage.AddResearchPoints(amount) != 0)
+            return true;
+        return false;
     }
     public override void TouchObject(HelpPanel panel)
     {
@@ -57,6 +64,7 @@ public class ResearchCenter : Manufactory {
             uPanel.upgradeBtn.interactable = true;
             uPanel.upgradeBtn.onClick.AddListener(delegate { Upgrade(++lvl); });
         }
+        
 
     }
   

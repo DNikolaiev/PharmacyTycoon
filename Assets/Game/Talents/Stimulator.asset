@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 213cd810af100b548bf6dc08b8c0a41d, type: 3}
+  m_Name: Stimulator
+  m_EditorClassIdentifier: 
+  description:
+    Name: Stimulator
+    description: 
+    buyPrice: 40
+    sellPrice: 0
+    sprite: {fileID: 21300000, guid: 9d69fbe41d2ec4a41baa8bfbe83f856f, type: 3}
+    upgradedSprite: {fileID: 0}
+    mergedSprite: {fileID: 0}
+  lockedSprite: {fileID: 21300000, guid: c419da8361303c14dada379e29fbc409, type: 3}
+  isPrimary: 0
+  isSelected: 0
+  cures: Depression
+  combinations: []
+  diseases:
+  - Depression
+  id: 19
+  timeToResearch: 25
+  isUnlocked: 0
+  canBeUnlocked: 0
+  characteristics:
+    healingPlantsNeeded: 2
+    chemistryNeeded: 4
+    plasticNeeded: 1
+    toxicity: 10
+    healingRate: 18

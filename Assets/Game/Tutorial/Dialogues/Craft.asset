@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fa30602c0850f4fac0d10063ac45f0, type: 3}
+  m_Name: Craft
+  m_EditorClassIdentifier: 
+  dialogueName: Craft
+  phrases:
+  - Here you can combine different drugs and create new recipes.
+  - "Every drug has it\u2019s own characteristics. Try to minimize toxicity and maximize
+    healing if you do not want the world to extinct."
+  - Try new combinations and experiment! Who knows, maybe you will find a perfect
+    formula
+  - Drag Ibuprofen into holder
+  - 
+  - 'highlightedYou can also change type of medicine. Pills require no plastic, they
+    are more demanding with herbs and chemicals. '
+  - "Great work! Color of smoke shows how good your combination is. The greener \u2013
+    the better! Now click on the big bottle in the center and craft some medicaments."
+  - 
+  - 'Excellent! Now you can craft recipe with these drugs at any time. '
+  - highlightedJust select RECIPE tab in upper left corner. Drag & drop recipe into
+    craft area.
+  - 'Click cross in right corner to exit craft menu. '
+  counter: 10

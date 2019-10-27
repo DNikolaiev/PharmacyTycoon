@@ -8,9 +8,11 @@ public class PlasticFactory : Manufactory {
     {
         resourceStorage.ExpandPlasticStorage(amount);
     }
-    protected override void GainResources(int amount)
+    protected override bool GainResources(int amount)
     {
-        resourceStorage.AddPlastic(amount);
+        if (resourceStorage.AddPlastic(amount) != 0)
+            return true;
+        return false;
     }
 
     protected override void LoseResources(int amount)

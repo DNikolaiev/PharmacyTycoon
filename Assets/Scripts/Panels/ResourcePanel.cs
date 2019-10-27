@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 public class ResourcePanel : Panel
 {
     public Text herbs, chems, plastic, researchPoints, money;
@@ -10,6 +10,8 @@ public class ResourcePanel : Panel
     public bool autoGenerate;
    [SerializeField] private CraftHolder craftHolder;
     [SerializeField] private RecipeHolder recipeHolder;
+    [SerializeField] private ColorInterpolator interpol;
+   
     public override void Hide()
     {
         gameObject.SetActive(false);
@@ -24,13 +26,75 @@ public class ResourcePanel : Panel
     {
         if (!gameObject.activeInHierarchy)
             gameObject.SetActive(true);
-        herbs.text = storage.currentHealingPlants.ToString() + " / " + storage.MaxHealingPlants.ToString();
-        chems.text = storage.currentChemistry.ToString() + " / " + storage.MaxChemistry.ToString();
-        plastic.text = storage.currentPlastic.ToString() + " / " + storage.MaxPlastic.ToString();
-        researchPoints.text = storage.ResearchPoints.ToString();
-        money.text = storage.money.ToString();
+        if (herbs != null)
+        {
+            CheckForChanges(herbs, storage.currentHealingPlants, Color.green);
+           
+         
+            herbs.text = storage.currentHealingPlants.ToString() + " / " + storage.MaxHealingPlants.ToString();
+           
+           
+        }
+        if(chems != null )
+        {
+            CheckForChanges(chems, storage.currentChemistry, Color.magenta);
+            chems.text = storage.currentChemistry.ToString() + " / " + storage.MaxChemistry.ToString();
+        }
+        if(plastic != null)
+        {
+            CheckForChanges(plastic, storage.currentPlastic, Color.white);
+            plastic.text = storage.currentPlastic.ToString() + " / " + storage.MaxPlastic.ToString();
+        }
+        if (researchPoints != null)
+        {
+            CheckForChanges(researchPoints, storage.ResearchPoints, Color.cyan);
+            
+            researchPoints.text = storage.ResearchPoints.ToString();
+        }
+        if (money != null)
+        {
+
+            CheckForChanges(money,storage.money,Color.green);
+            money.text = storage.money.ToString();
+        }
+
         
     }
+    private int ParseResource(string text)
+    {
+        int res = 0;
+        if(!text.Contains("/"))
+        {
+            Int32.TryParse(text, out res);
+        }
+        else
+        {
+            int found = text.IndexOf("/");
+            Int32.TryParse(text.Substring(0, found), out res);
+        }
+
+        return res;
+    }
+    public bool CheckForChanges(Text text, int value, Color addColor)
+    {
+        int oldValue = ParseResource(text.text);
+      
+        if (oldValue - value < 0)
+        {
+            StartCoroutine(interpol.InOut(text, addColor));
+            StartCoroutine(GetComponent<Scaler>().Scale(text));
+            text.transform.parent.GetComponentInChildren<ParticleSystem>().Play();
+            return true;
+        }
+        else if (oldValue - value >0)
+        {
+            StartCoroutine(interpol.InOut(text, Color.red));
+            StartCoroutine(GetComponent<Scaler>().Scale(text));
+            return true;
+        }
+         return false;
+    }
+   
     public void SetPanel(Characteristics ch)
     {
         if(!gameObject.activeInHierarchy)
@@ -38,7 +102,7 @@ public class ResourcePanel : Panel
         if (bar!=null)
         {
             bar.SetValueToBarPercent(ch.toxicity, bar.toxicityBar);
-            bar.SetValueToBarScalar(ch.healingRate, bar.healingBar);
+            bar.SetValueToBarScalar(ch.healingRate, bar.healingBar, 100);
         }
         else if(Nametxt!=null && craftHolder!=null)
             Nametxt.text = craftHolder.Talent.description.Name;
@@ -53,13 +117,19 @@ public class ResourcePanel : Panel
     
     private void Start()
     {
-        herbsImg.sprite= Resources.Load<Sprite>("Icons/herbs");
-        chemsImg.sprite = Resources.Load<Sprite>("Icons/chemistry");
-        plasticImg.sprite = Resources.Load<Sprite>("Icons/plastic");
+        if (herbsImg != null && chemsImg != null && plasticImg != null)
+        {
+            herbsImg.sprite = Resources.Load<Sprite>("Icons/herbs");
+            chemsImg.sprite = Resources.Load<Sprite>("Icons/chemistry");
+            plasticImg.sprite = Resources.Load<Sprite>("Icons/plastic");
+        }
         if (rpImg != null)
             rpImg.sprite = Resources.Load<Sprite>("Icons/researchPoint");
-        if (moneyImg!=null)
-            moneyImg.sprite=  Resources.Load<Sprite>("Icons/money");
+        if (moneyImg != null)
+        {
+            moneyImg.sprite = Resources.Load<Sprite>("Icons/money");
+            interpol.originalColor = money.color;
+        }
         if (autoGenerate)
         {
            

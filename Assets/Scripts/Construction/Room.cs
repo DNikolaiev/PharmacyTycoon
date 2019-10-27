@@ -58,16 +58,16 @@ public class Room : Constructible {
         hasJointedObject = true;
         foreach(AdjacentObject obj in adjacent.list)
         {
-            Debug.Log("LUL");
+ 
             if (obj.leftObj==this.adjacent)
             {
-                Debug.Log("LOL");
+      
                 Destroy(rightWall);
                 Destroy(obj.GetComponent<Room>().leftWall);
             }
             else if (obj.rightObj == this.adjacent)
             {
-                Debug.Log("LAW");
+        
                 Destroy(leftWall);
                 Destroy(obj.GetComponent<Room>().rightWall);
             }

@@ -6,32 +6,37 @@ using System.Linq;
 public class Crafter : MonoBehaviour {
 
    [SerializeField] private List<Talent> openTalents;
-   
+    public SavedUnlockmentsData savedData;
     public bool isLiquid = true;
+    public int formMultiplier;
     public bool isPrescripted = false;
     public Recipe recipeSelected;
     public List<Talent> selectedTalents;
-    public Inventory inventory;
-
+    public Tutorial tutorial;
     public CraftView view; // reflects changes in game view
     public CraftController controller; // controls input in craft screen
-   
+    public List<AudioClip> ambienceSound;
     [SerializeField] Characteristics characteristics;
-    
+    private Player player;
     private void Start()
     {
-        view.capacity.text = inventory.GetNumberOfElements().ToString() + " / " + inventory.capacity.ToString();
+        player = GameController.instance.player.GetComponent<Player>();
+        player.inventory.Set(null, 0);
+        
+        
         view.craftPanel.gameObject.SetActive(false);
+        
     }
-  
+   
     private void CalculateResourcesNeeded(List<Talent> talents)
     {
         characteristics.Reset();
         foreach (Talent tal in talents)
         {
-            this.characteristics.healingPlantsNeeded += tal.characteristics.healingPlantsNeeded;
-            this.characteristics.chemistryNeeded += tal.characteristics.chemistryNeeded;
-            this.characteristics.plasticNeeded += tal.characteristics.plasticNeeded;
+            
+                this.characteristics.healingPlantsNeeded += tal.characteristics.healingPlantsNeeded;
+                this.characteristics.chemistryNeeded += tal.characteristics.chemistryNeeded;
+                this.characteristics.plasticNeeded += tal.characteristics.plasticNeeded;
         }
     }
     private int CalculateToxicity(List<Talent> talents)
@@ -59,9 +64,9 @@ public class Crafter : MonoBehaviour {
         {
             result += tal.description.buyPrice;
         }
-        return result;
+        return (int)result/2;
     }
-    private void Recombine(List<Talent> talents) // recalculate values needed to craft one piece of medicine
+    public void Recombine(List<Talent> talents) // recalculate values needed to craft one piece of medicine
     {
         if (talents.Count == 0)
         {
@@ -71,14 +76,25 @@ public class Crafter : MonoBehaviour {
         CalculateResourcesNeeded(talents);
         characteristics.toxicity = CalculateToxicity(talents);
         characteristics.healingRate = CalculateHealingRate(talents);
+        if(!isLiquid)
+        {
+            characteristics *= 2;
+            characteristics.plasticNeeded=0;
+        }
         view.rPanel.SetPanel(characteristics);
     }
-    private void Recombine(Characteristics ch)
+    public Characteristics Recombine(Characteristics ch)
     {
         CalculateResourcesNeeded(selectedTalents);
         characteristics.toxicity = ch.toxicity;
         characteristics.healingRate = ch.healingRate;
+        if (!isLiquid)
+        {
+            characteristics *= 2;
+            characteristics.plasticNeeded = 0;
+        }
         view.rPanel.SetPanel(ch);
+        return ch;
     }
     private bool SelectedTalentsContain(Talent talent)
     {
@@ -108,15 +124,30 @@ public class Crafter : MonoBehaviour {
                         if (pCombination == s.description.Name)
                             matchCounter++;
                 }
+                
             }
+         
         }
+        Debug.Log("MATCHES: " + matchCounter);
+        CharacteristicsScaling(matchCounter);
         return matchCounter;
+    }
+    private void CharacteristicsScaling(int matchCounter)
+    {
+        if (matchCounter <= 1) return;
+        int healingMultiplier = matchCounter *5;
+        int toxicityReducer = matchCounter * 2;
+        characteristics.healingRate += healingMultiplier;
+        characteristics.toxicity -= toxicityReducer;
+        Recombine(characteristics);
+        
     }
     public Characteristics GetCharacteristics()
     {
+        
         return characteristics;
     }
-    public string Craft(string Name, int quantity) // craft new recipe
+    public string Craft(string Name, int quantity, Sprite avatar) // craft new recipe
     {
         Player player = GameController.instance.player;
         characteristics *= quantity;
@@ -126,22 +157,28 @@ public class Crafter : MonoBehaviour {
             && player.resources.currentPlastic >= characteristics.plasticNeeded
             && player.resources.ResearchPoints >= researchPoints)
         {
-            var messageBox = GameController.instance.buttons.messageBox;
+            
             characteristics /= quantity;
-            Recipe recipe = new Recipe(Name, selectedTalents, characteristics, isLiquid); // create recipe
-            int storageCapacity = inventory.GetNumberOfElements();
-            inventory.Set(recipe, quantity); // set recipe to it's quantity via dictionary
-            if (storageCapacity == inventory.GetNumberOfElements()) // check for max capacity in inventory
+            Recipe recipe = new Recipe(Name, selectedTalents, characteristics, isLiquid, avatar); // create recipe
+            int storageCapacity = player.inventory.GetNumberOfElements();
+            player.inventory.Set(recipe, quantity); // set recipe to it's quantity via dictionary
+            if (storageCapacity == player.inventory.GetNumberOfElements()) // check for max capacity in inventory
             {
-                messageBox.Show("Inventory is full. Delete one recipe");
+                
                 return "FULL";
             }
              characteristics *= quantity;
             player.resources.SpendResources(characteristics.healingPlantsNeeded, characteristics.chemistryNeeded, characteristics.plasticNeeded, researchPoints);
             characteristics /= quantity;
             PopulateRecipeList(view.recipesListView,view.recipeInList); // refresh view
-            view.capacity.text = inventory.GetNumberOfElements().ToString() + " / " + inventory.capacity.ToString(); // refresh capacity text
-            messageBox.Show(recipe.description.Name + " was created");
+            view.capacity.text = player.inventory.GetNumberOfElements().ToString() + " / " + player.inventory.capacity.ToString(); // refresh capacity text
+            recipeSelected = recipe;
+            EventManager.TriggerEvent("OnCraftMedicine", quantity);
+            
+            EventManager.TriggerEvent("OnCraftRecipe", 1);
+            player.GainExperience(100*(recipeSelected.PTalents.Count+recipeSelected.STalents.Count));
+            player.finances.AddToProducedItems(quantity);
+            PlayGameScript.IncrementAchievement(GPGSIds.achievement_chemical_engineering, quantity);
             return "TRUE";
            
         }
@@ -154,7 +191,7 @@ public class Crafter : MonoBehaviour {
     }
     public string Craft( int quantity) // craft quantity of medicine according to selected recipe (field)
     {
-        var messageBox = GameController.instance.buttons.messageBox;
+       
         characteristics *= quantity;
         Player player = GameController.instance.player;
         if (player.resources.currentHealingPlants >= characteristics.healingPlantsNeeded // does player has enough resources?
@@ -163,11 +200,18 @@ public class Crafter : MonoBehaviour {
         {
             player.resources.SpendResources(characteristics.healingPlantsNeeded, characteristics.chemistryNeeded, characteristics.plasticNeeded);
             characteristics /= quantity;
-            inventory.Set(recipeSelected, quantity); // set selected recipe to a new quantity
+            player.inventory.Set(recipeSelected, quantity); // set selected recipe to a new quantity
             Debug.Log(recipeSelected.description.Name + " " + quantity);
-            
-            messageBox.Show("x" + quantity + " " + recipeSelected.description.Name + " crafted");
+            Recipe r = recipeSelected;
+           
             PopulateRecipeList(view.recipesListView, view.recipeInList); // refresh view
+            recipeSelected = r;
+            player.finances.AddToProducedItems(quantity);
+            EventManager.TriggerEvent("OnCraftMedicine", quantity);
+            
+            PlayGameScript.IncrementAchievement(GPGSIds.achievement_chemical_engineering, quantity);
+            player.GainExperience(100 * (recipeSelected.PTalents.Count + recipeSelected.STalents.Count));
+            view.PlayOnCraftParticles();
             return "TRUE";
         }
         else
@@ -193,16 +237,20 @@ public class Crafter : MonoBehaviour {
         }
         talent.isSelected = true;
         view.holderSelected.Talent = talent;
+        isLiquid = true;
+        view.liquidSlider.value = view.liquidSlider.minValue;
         Recombine(selectedTalents);
-        view.ReflectMatch( MatchTalents());
+        if(selectedTalents.Where(x=>x.isPrimary).ToList().Count>0)
+            view.ReflectMatch( MatchTalents());
         isPrescripted = false;
-        recipeSelected = null;      
+        recipeSelected = null;
+       
     }
 
     public Recipe RecognizeRecipe()
     {
         int counter = 0;
-        foreach (Recipe recipe in inventory.recipes)
+        foreach (Recipe recipe in player.inventory.recipes.Where(x=>!x.isDeleted).ToList())
         {
             foreach(Talent talent in recipe.Talents)
             {
@@ -213,7 +261,11 @@ public class Crafter : MonoBehaviour {
             }
             if (counter == recipe.Talents.Count && recipe.Talents.Count == selectedTalents.Count)
             {
-                Debug.Log(counter + " " + recipe.Talents.Count + " " + selectedTalents.Count);
+                isLiquid = recipe.isLiquid;
+                if (isLiquid)
+                    view.liquidSlider.value = view.liquidSlider.minValue;
+                else view.liquidSlider.value = view.liquidSlider.maxValue;
+                Recombine(selectedTalents);
                 return recipe;
             }
             counter = 0;
@@ -229,8 +281,12 @@ public class Crafter : MonoBehaviour {
         toInstantiate.GetComponentInChildren<CraftHolder>().Talent = talent;
         Recombine(selectedTalents);
         if (selectedTalents.Count == 0)
+        {
             view.DisableAllParticles();
-        else view.ReflectMatch(MatchTalents());
+          view.ResetCraftButton();
+        }
+        else if (selectedTalents.Where(x => x.isPrimary).ToList().Count > 0) view.ReflectMatch(MatchTalents());
+        else { view.DisableAllParticles(); view.ResetCraftButton(); }
         
     }
     public void AssignRecipe(Recipe recipe)
@@ -257,6 +313,7 @@ public class Crafter : MonoBehaviour {
                 selectedTalents.Add(primaryTalents[i]);
                 
         }
+        
         for (int i = 0; i < view.secondaryHolders.Count; i++)
         {
 
@@ -270,6 +327,7 @@ public class Crafter : MonoBehaviour {
             secondaryTalents[i].isSelected = true;
                 selectedTalents.Add(secondaryTalents[i]); 
         }
+        isLiquid = recipe.isLiquid;
         Recombine(recipe.characteristics);
         
         DeleteAllTalents(view.talentsListView);
@@ -298,61 +356,49 @@ public class Crafter : MonoBehaviour {
     }
     public void DeleteAllTalents(Transform panel)
     {
-            var children = new List<GameObject>();
-            foreach (Transform child in panel) children.Add(child.gameObject);
-            children.ForEach(child => Destroy(child));
+        ListPopulator.DeleteAllTalents(panel);
         openTalents.Clear();    
     }
     public void DeleteAllRecipes(Transform panel)
     {
-        var children = new List<GameObject>();
-        foreach (Transform child in panel) children.Add(child.gameObject);
-        children.ForEach(child => Destroy(child));
+        ListPopulator.DeleteAllRecipes(panel);
         recipeSelected = null;
     }
     public void PopulateTalentList(Transform panel, GameObject talentPrefab, bool primaryTalents = true)
     {
-        
-        if (!primaryTalents)
-            openTalents = GameController.instance.researcher.talents.Where(p => p.isUnlocked && !p.isSelected && !p.isPrimary).ToList(); //populate list
-        else openTalents = GameController.instance.researcher.talents.Where(p => p.isUnlocked && !p.isSelected && p.isPrimary).ToList();
-        foreach (Talent talent in openTalents)
-        {
-            GameObject toInstantiate = Instantiate(talentPrefab, panel);
-            toInstantiate.GetComponentInChildren<CraftHolder>().Talent = talent; 
-        }
+
+        ListPopulator.PopulateTalentList(panel, talentPrefab, GameController.instance.talentTree.talents, primaryTalents);
     }
     public void PopulateRecipeList(Transform panel, GameObject recipePrefab)
     {
-        DeleteAllRecipes(panel);
-        List<Recipe> openRecipes = inventory.recipes;
-        foreach (Recipe recipe in openRecipes)
-        {
-            
-            GameObject toInstantiate = Instantiate(recipePrefab, panel);
-            toInstantiate.GetComponentInChildren<RecipeHolder>().recipe = recipe;
-            toInstantiate.GetComponentInChildren<RecipeHolder>().SetPanel();
 
-        }
+        ListPopulator.PopulateRecipeList(panel, recipePrefab, GameController.instance.player.inventory.recipes.Where(x=>!x.isDeleted).ToList());
     }
     public void CraftON()
     {
         view.recipeHolderSelected = null;
-        GameController.instance.isGameSceneEnabled = false;
+        GameController.instance.IsGameSceneEnabled = false;
         view.craftPanel.gameObject.SetActive(true);
+        view.capacity.text = player.inventory.GetNumberOfElements().ToString() + " / " + player.inventory.capacity.ToString();
         GameController.instance.buttons.HideAllButtons();
         GameController.instance.buttons.cancel.gameObject.SetActive(true);
+        StartCoroutine(GameController.instance.cam.ResetCamera());
         characteristics.Reset();
         DeleteAllTalents(view.talentsListView);
         PopulateTalentList(view.talentsListView, view.elementInList, true);
         PopulateRecipeList(view.recipesListView, view.recipeInList);
+        GameController.instance.time.Pause();
+        GameController.instance.audio.player.MakeAmbience(ambienceSound[Random.Range(0,ambienceSound.Count)]);
         recipeSelected = null;
-    
+        //tutor section
+        if (!tutorial.isTutorialCompleted) { GameController.instance.buttons.HideCancel();  tutorial.StartTutorial(); }
+
+        
     }
     public void CraftOFF()
     {
         view.recipeHolderSelected = null;
-        GameController.instance.isGameSceneEnabled = true;
+        GameController.instance.IsGameSceneEnabled = true;
         selectedTalents.Clear();
         characteristics.Reset();
         recipeSelected = null;
@@ -373,9 +419,30 @@ public class Crafter : MonoBehaviour {
         view.secondaryHolders.ForEach(x => { x.glowImg.gameObject.SetActive(false); });
         view.craftPanel.gameObject.SetActive(false);
         GameController.instance.buttons.ShowAllButtons();
+        GameController.instance.time.UnPause();
+        GameController.instance.audio.player.StopAmbience();
+        if (!GameController.instance.generalTutorial.isTutorialCompleted)
+        {
+            GameController.instance.generalTutorial.isBlocked = false;
+            GameController.instance.generalTutorial.ContinueTutorial();
+            
+        }
     }
     private void OnEnable()
     {
         view.rPanel.SetPanel(characteristics);
+    }
+   
+}
+[System.Serializable]
+public class SavedUnlockmentsData
+{
+   public List<int> data1 = new List<int>();
+   public List<int> data2 = new List<int>();
+
+    public SavedUnlockmentsData(List<int> data1, List<int> data2)
+    {
+        this.data1 = data1;
+        this.data2 = data2;
     }
 }

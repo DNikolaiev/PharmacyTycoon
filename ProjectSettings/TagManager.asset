@@ -10,6 +10,15 @@ TagManager:
   - RoomCell
   - PrimaryHolder
   - SecondaryHolder
+  - Greengarden
+  - ChemistryFactory
+  - PlasticFactory
+  - ResearchCenter
+  - Laboratory
+  - EngineeringCenter
+  - Drugstore
+  - Cell
+  - Basic
   layers:
   - Default
   - TransparentFX
@@ -46,4 +55,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Foreground
+    uniqueID: 4022271029
     locked: 0

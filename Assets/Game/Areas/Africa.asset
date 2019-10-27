@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78bf1fdcf39358945b2df7d59f3c1d35, type: 3}
+  m_Name: Africa
+  m_EditorClassIdentifier: 
+  Name: Africa
+  health: 6800
+  maxHealth: 10000
+  startHealthPerTurnDecreased: 630
+  maxEpidemicCount: 3
+  activeEpidemies:
+  - {fileID: 11400000, guid: 25b60785a83d66549965f5a01d4f9081, type: 2}
+  - {fileID: 11400000, guid: ee73e7a75d544a849b673958e0220807, type: 2}
+  - {fileID: 11400000, guid: 656e8dd7b6d341a4886fd60db664674f, type: 2}
+  dead: 0
+  cured: 25
+  deathRatingAllowed: 10
+  experienceMultiplier: 1
+  sellMultiplier: 0.5
+  maxQuotum: 2147483647
+  soldItems: 0
+  passiveSkills:
+  - 'Health reduces <b>faster</b> '
+  - Sell price is lower
+  - Recipes with Death Rating over 10% are forbidden
+  backgroundSprite: {fileID: 21300000, guid: 876d247ab0b53184ba8a315e1cd6f2c5, type: 3}

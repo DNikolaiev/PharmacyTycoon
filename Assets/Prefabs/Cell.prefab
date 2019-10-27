@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 114868962116374018}
   m_Layer: 9
   m_Name: Cell
-  m_TagString: Untagged
+  m_TagString: Cell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -110,7 +110,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultColor: {r: 0, g: 0.5471698, b: 0.07940927, a: 0.48235294}
   highlightedColor: {r: 0, g: 0.8018868, b: 0.04010386, a: 0.45490196}
-  occupiedColor: {r: 0, g: 0, b: 0, a: 0}
+  occupiedColor: {r: 0.8584906, g: 0, b: 0, a: 0}
   isOccupied: 0
   isCellSelected: 0
   rend: {fileID: 0}
+  position:
+    x: 0
+    y: 0
+  room: {fileID: 0}

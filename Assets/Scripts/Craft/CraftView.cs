@@ -3,15 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 public class CraftView : MonoBehaviour {
+    
     public List<TalentHolder> primaryHolders;
     public List<TalentHolder> secondaryHolders;
     public CraftHolder holderSelected;
     public RecipeHolder recipeHolderSelected;
+    public Slider liquidSlider;
+    public Button craftButton;
     #region particles
     public ParticleSystem badMatch;
     public ParticleSystem okMatch;
     public ParticleSystem goodMatch;
-    private ParticleSystem lastPlayed;
+    public ParticleSystem afterCraft;
+    [SerializeField] private ParticleSystem lastPlayed;
+    [SerializeField] private int firstUnlockLvl;
+    [SerializeField] private int secondUnlockLvl;
     #endregion
     #region prefabs
     public ResourcePanel rPanel;
@@ -23,12 +29,48 @@ public class CraftView : MonoBehaviour {
     #endregion
     public Image craftPanel; // main panel
     public Text capacity;
+    private Vector2 startSize;
+    private bool isCoroutineRunning;
+    private void Start()
+    {
+        Invoke("UpdateView", .5f);
+        EventManager.StartListening(Player.OnLevelEvent, UpdateView);
+    }
+    private IEnumerator BounceCraftButton(float frequency, float amplitude)
+    {
+        
+        startSize = craftButton.GetComponent<RectTransform>().sizeDelta;
+        Vector2 tempSize = Vector2.zero;
+
+        while(true)
+        {
+            isCoroutineRunning = true;
+            tempSize = startSize;
+            tempSize.x += Mathf.Sin(Time.fixedTime * Mathf.PI * frequency)*amplitude;
+            tempSize.y += Mathf.Sin(Time.fixedTime * Mathf.PI * frequency) * amplitude;
+            craftButton.GetComponent<RectTransform>().sizeDelta = tempSize;
+           
+            yield return null;
+        }
+    }
+    public void ResetCraftButton()
+    {
+        Debug.Log("resetted");
+
+        StopAllCoroutines();
+       
+            craftButton.GetComponent<RectTransform>().sizeDelta = startSize;
+           
+        
+    }
     public void ReflectMatch(int matchCounter)
     {
+        
+        StartCoroutine(BounceCraftButton(1.5f,5.5f));
         switch (matchCounter)
         {
-           
-            case '1':
+                
+            case 2:
                 {
                     DisableAllParticles();
                     okMatch.gameObject.SetActive(true);
@@ -36,7 +78,7 @@ public class CraftView : MonoBehaviour {
                     lastPlayed = okMatch;
                 }
                 break;
-            case '2':
+            case 3:
                 {
                     DisableAllParticles();
                     okMatch.gameObject.SetActive(true);
@@ -44,7 +86,7 @@ public class CraftView : MonoBehaviour {
                     lastPlayed = okMatch;
                 }
                 break;
-            case '3':
+            case 4:
                 {
                     DisableAllParticles();
                     goodMatch.gameObject.SetActive(true);
@@ -52,7 +94,7 @@ public class CraftView : MonoBehaviour {
                     lastPlayed = goodMatch;
                 }
                 break;
-            case '4':
+            case 5:
                 {
                     DisableAllParticles();
                     goodMatch.gameObject.SetActive(true);
@@ -60,7 +102,23 @@ public class CraftView : MonoBehaviour {
                     lastPlayed = goodMatch;
                 }
                 break;
-            case '5':
+            case 6:
+                {
+                    DisableAllParticles();
+                    goodMatch.gameObject.SetActive(true);
+                    goodMatch.Play();
+                    lastPlayed = goodMatch;
+                }
+                break;
+            case 7:
+                {
+                    DisableAllParticles();
+                    goodMatch.gameObject.SetActive(true);
+                    goodMatch.Play();
+                    lastPlayed = goodMatch;
+                }
+                break;
+            case 8:
                 {
                     DisableAllParticles();
                     goodMatch.gameObject.SetActive(true);
@@ -81,8 +139,11 @@ public class CraftView : MonoBehaviour {
     }
     public void EmitLastParticles()
     {
-        lastPlayed.gameObject.SetActive(true);
-        lastPlayed.Play();
+        if (lastPlayed != null)
+        {
+            lastPlayed.gameObject.SetActive(true);
+            lastPlayed.Play();
+        }
     }
 	public void DisableAllParticles()
     {
@@ -144,5 +205,25 @@ public class CraftView : MonoBehaviour {
             primaryHolders.ForEach(x => x.glowImg.gameObject.SetActive(false));
         }
     }
-  
+   public void UpdateView()
+    {
+        Player player = GameController.instance.player;
+        Debug.Log("PLAYER LEVEL IS " + player.level);
+        if (player.level >= firstUnlockLvl)
+            UnlockNewHolders(1, 1);
+       if (player.level >= secondUnlockLvl)
+            UnlockNewHolders(1, 1);
+       
+    }
+    public void PlayOnCraftParticles()
+    {
+        if (afterCraft != null)
+        {
+            if (afterCraft.isPlaying)
+                afterCraft.Stop();
+            afterCraft.gameObject.SetActive(true);
+            afterCraft.Play();
+
+        }
+    }
 }

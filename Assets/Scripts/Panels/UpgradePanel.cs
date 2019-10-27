@@ -22,7 +22,7 @@ public class UpgradePanel : Panel
     }
     public override void Hide()
     {
-        GameController.instance.isGameSceneEnabled = true;
+        GameController.instance.IsGameSceneEnabled = true;
         gameObject.SetActive(false);
         
     }
@@ -42,7 +42,7 @@ public class UpgradePanel : Panel
         }
         descriptionPanel.Hide();
         gameObject.SetActive(true);
-        GameController.instance.isGameSceneEnabled = false;
+        GameController.instance.IsGameSceneEnabled = false;
         descriptionPanel.lastTouched.ConfirmUpgrade(this);
     }
 }

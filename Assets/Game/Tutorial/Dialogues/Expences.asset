@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fa30602c0850f4fac0d10063ac45f0, type: 3}
+  m_Name: Expences
+  m_EditorClassIdentifier: 
+  dialogueName: Expences
+  phrases:
+  - We must pay our bills !
+  - More objects you construct - more money we will lose on monthly basis
+  - Plan investments carefully, so we don't end up like bankrupts
+  - You can find information about current expences in "Finances" tab.
+  - highlightedJust click on level icon.
+  counter: 4

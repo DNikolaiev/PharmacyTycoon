@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8bf356eed90b454bb8d660df9c5b902, type: 3}
+  m_Name: Quest16
+  m_EditorClassIdentifier: 
+  duration: 22
+  Name: Forced Measures
+  description: 'Screams of agony outside the window get on your nerves. Maybe it''s
+    time to shut these dying people up by healing them. '
+  goal:
+    description: Cure humans
+    objective: 4
+    currentAmount: 116
+    neededAmount: 85
+    isCompleted: 0
+  reward:
+    experiencePercentage: 15
+    money: 300
+    herbs: 75
+    chems: 50
+    plastic: 0
+    researchPoints: 0
+    coins: 1
+  isActive: 0

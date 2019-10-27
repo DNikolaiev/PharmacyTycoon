@@ -5,9 +5,10 @@ using UnityEngine;
 public class Drugstore : Manufactory {
 
     public int timeReducer;
-    protected override void GainResources(int amount)
+    protected override bool GainResources(int amount)
     {
         resourceStorage.ChangeBalance(amount);
+        return true;
     }
 
     protected override void LoseResources(int amount)

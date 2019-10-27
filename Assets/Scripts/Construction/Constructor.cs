@@ -2,25 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 public class Constructor : MonoBehaviour {
 
-    public Image shopPanel;
+    
     public Constructible[] objectsToConstruct;
     public Cell selectedCell;
-    public Builder builder;
-    
     public bool isShopEnabled=false;
     public bool inConfirmation = false;
     public bool isActive = false;
-
+    [SerializeField] Image shopPanel;
+    [SerializeField] Builder builder;
+    [SerializeField] List<InfoPanel> objectPanels;
+    [SerializeField] Tutorial tutorial;
+    [SerializeField] Color cellHighlightedColor;
     private Button constructBtn;
     private Button cancelBtn;
     private ButtonController buttons;
     private ConfirmationWindow confirm;
     private ColorInterpolator interpol;
+    public List<GameObject> roomCells;
+    
     private void Awake()
     {
         interpol = GetComponent<ColorInterpolator>();
+       
     }
     private void Start()
     {
@@ -30,25 +36,64 @@ public class Constructor : MonoBehaviour {
         cancelBtn = buttons.cancel;
         shopPanel.gameObject.SetActive(false);
         cancelBtn.gameObject.SetActive(false);
+        interpol.originalColor = confirm.confirmText.color;
+       
     }
     public void RefreshShop()
     {
-        //здесь обработать логику открытия постепенного объектов
+        foreach(InfoPanel panel in objectPanels)
+        {
+            panel.SetPanel();
+        }
        
         
     }
     private void ShowCells()
     {
-
+        
+        roomCells.RemoveAll(item => item == null);
         foreach (Room room in GameController.instance.roomOverseer.rooms)
         {
             foreach (Cell cell in room.info.cells)
             {
+                cell.gameObject.SetActive(true);
                 cell.UpdateColor();
+                
             }
         }
-        Camera.main.cullingMask = -1; // -1 means "Everything"}
+        
+        if (!tutorial.isTutorialCompleted)
+        {
+            StartCoroutine(GameController.instance.cam.FocusCamera(new Vector2(0, 0))); 
+            if (roomCells.Count > 0)
+            {
+                foreach (GameObject room in roomCells)
+                {
 
+                    room.SetActive(false);
+
+                }
+
+            }
+            //??
+            Cell cell = GameController.instance.roomOverseer.rooms[0].info.cells.Where(x => !x.isOccupied).ToList().FirstOrDefault();
+            StartCoroutine(GetComponent<Scaler>().Scale(cell.gameObject));
+            cell.GetComponent<MeshRenderer>().material.color = cellHighlightedColor;
+        }
+        else
+        {
+            if (roomCells.Count > 0)
+            {
+                foreach (GameObject room in roomCells)
+                {
+                   
+                    room.SetActive(true);
+                }
+            }
+            
+        }
+        Camera.main.cullingMask = -1; // -1 means "Everything"}
+       
     }
     
     private void HideCells()
@@ -57,13 +102,33 @@ public class Constructor : MonoBehaviour {
     }
     public void ToggleShop(bool state)
     {
+        if (GameController.instance.buttons.tPanel.gameObject.activeInHierarchy && state) return;
+        GameController.instance.IsGameSceneEnabled =!state;
+        
         isShopEnabled = state;
         shopPanel.gameObject.SetActive(state);
         RefreshShop();
         if (state == true)
+        {
             buttons.SwitchButtons(constructBtn, cancelBtn);
-        else buttons.SwitchButtons(cancelBtn, constructBtn);
-        
+            GameController.instance.time.Pause();
+        }
+        if (!tutorial.isTutorialCompleted)
+        {
+            cancelBtn.gameObject.SetActive(false);
+            GameController.instance.IsGameSceneEnabled = false;
+            // ??
+            StopAllCoroutines();
+            Cell scaledCell = GameController.instance.roomOverseer.rooms[0].info.cells.Where(x => !x.isOccupied).ToList().FirstOrDefault();
+
+            scaledCell.transform.localScale = GameController.instance.roomOverseer.rooms[0].info.cells[3].transform.localScale;
+
+
+
+        }
+       
+        if (!tutorial.isTutorialCompleted) tutorial.ContinueTutorial();
+
     }
     public void Construct(int id)
     {
@@ -71,16 +136,24 @@ public class Constructor : MonoBehaviour {
             return;
         if (GameController.instance.player.resources.money < objectsToConstruct[id].description.buyPrice)
         {
-            StartCoroutine(interpol.PingPong(confirm.confirmText, Color.red));
+            
+            StartCoroutine(interpol.InOut(confirm.confirmText, Color.red));
             return;
         }
-        Constructible selectedObject=builder.Build(id, objectsToConstruct, selectedCell);
-        selectedCell.AddObject(selectedObject);
+        Build(id);
         GameController.instance.player.resources.ChangeBalance(-objectsToConstruct[id].description.buyPrice);
-       
-        Abort();
+        if (!GameController.instance.generalTutorial.isTutorialCompleted) { GameController.instance.generalTutorial.isBlocked = false; GameController.instance.generalTutorial.ContinueTutorial(); GameController.instance.generalTutorial.ContinueTutorial(); }
+            Abort();
+        
         ConstructOFF();
         
+    }
+    public void Build(int id, bool playEffects = true)
+    {
+        Constructible selectedObject = builder.Build(id, objectsToConstruct, selectedCell, playEffects);
+        if (selectedCell.CompareTag("RoomCell"))
+            roomCells.Remove(selectedCell.gameObject);
+        selectedCell.AddObject(selectedObject);
     }
     public void SelectObject(int id)
     {
@@ -106,14 +179,16 @@ public class Constructor : MonoBehaviour {
         ShowCells();
         buttons.HideAllButtons();
         buttons.SwitchButtons(constructBtn, cancelBtn);
-        Camera.main.GetComponent<CameraController>().isActive = false;
-   
+        if (!tutorial.isTutorialCompleted) tutorial.StartTutorial();
+        if (!GameController.instance.generalTutorial.isTutorialCompleted) GameController.instance.buttons.HideCancel();
+
     }
     public void ConstructOFF()
     {
 
         isActive = false;
-        Camera.main.GetComponent<CameraController>().isActive = true;
+        GameController.instance.time.UnPause();
+        GameController.instance.IsGameSceneEnabled = true;
         HideCells();
         ToggleShop(false);
 

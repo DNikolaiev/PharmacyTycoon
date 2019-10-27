@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 213cd810af100b548bf6dc08b8c0a41d, type: 3}
+  m_Name: Statin
+  m_EditorClassIdentifier: 
+  description:
+    Name: Statin
+    description: 
+    buyPrice: 25
+    sellPrice: 0
+    sprite: {fileID: 21300000, guid: 42c0caeaa930a22479de83041138a066, type: 3}
+    upgradedSprite: {fileID: 0}
+    mergedSprite: {fileID: 0}
+  lockedSprite: {fileID: 21300000, guid: c419da8361303c14dada379e29fbc409, type: 3}
+  isPrimary: 1
+  isSelected: 0
+  cures: Cardiovascular diseases
+  combinations:
+  - Antihistamine
+  - Vitamins
+  - Cannabis
+  - Carbamazepine
+  - Stimulator
+  - Immunostimulants
+  diseases:
+  - "\u0421oronary heart disease"
+  - Peripheral arterial disease
+  - Deep vein thrombosis
+  id: 5
+  timeToResearch: 5
+  isUnlocked: 0
+  canBeUnlocked: 0
+  characteristics:
+    healingPlantsNeeded: 1
+    chemistryNeeded: 3
+    plasticNeeded: 2
+    toxicity: 12
+    healingRate: 20

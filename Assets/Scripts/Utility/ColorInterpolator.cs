@@ -2,32 +2,56 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 public class ColorInterpolator : MonoBehaviour {
     private Color startColor;
-    
-    public IEnumerator PingPong(Text text, Color color2)
+    public Color originalColor = Color.white;
+    public float fadeInTime = 1f;
+   
+    public IEnumerator InOut(Text text, Color endColor, float timeToWait=1f)
     {
         startColor = text.color;
-        float timer = 1.5f;
-        float duration = 0;
-        while (duration < 0.8)
-        {
-            Debug.Log(duration);
-            duration = Mathf.PingPong(Time.time, 1);
-            Color newColor = Color.Lerp(text.color, color2, Time.deltaTime*4);
-            text.color = newColor;
-            
-            yield return null;
-        }
-        while (duration > 0.1)
-        {
-           
-            duration = Mathf.PingPong(Time.time, 1);
-            Color newColor = Color.Lerp(text.color, startColor, Time.deltaTime * 4);
-            text.color = newColor;
-            yield return null;
-        }
-        text.color = startColor;
-
+        StartCoroutine(ColorIn(text, text.color, endColor));
+        yield return new WaitForSeconds(timeToWait);
+        if(originalColor!=Color.black)
+            StartCoroutine(ColorIn(text, text.color, originalColor));
+        else
+            StartCoroutine(ColorIn(text, text.color, startColor));
+        yield return null;
     }
+    public IEnumerator InOut(Image image, Color endColor, float timeToWait = 1f)
+    {
+        startColor = image.color;
+        StartCoroutine(ColorIn(image, image.color, endColor));
+        yield return new WaitForSeconds(timeToWait);
+        StartCoroutine(ColorIn(image, image.color, startColor));
+        yield return null;
+    }
+    public IEnumerator ColorIn(Text text, Color startColor, Color endColor)
+    {
+       
+        
+        for (float t = 0.01f; t < fadeInTime; t += 0.02f)
+        {
+            Color newColor = Color.Lerp(text.color, endColor, t/fadeInTime);
+            text.color = newColor;
+            yield return null;
+        }
+        text.color = endColor;
+        yield return null;
+    }
+    public IEnumerator ColorIn(Image image, Color startColor, Color endColor)
+    {
+       
+
+        for (float t = 0.01f; t < fadeInTime; t += 0.001f)
+        {
+            Color newColor = Color.Lerp(image.color, endColor, t / fadeInTime);
+            image.color = newColor;
+            yield return null;
+        }
+        yield return null;
+    }
+
+    
 }

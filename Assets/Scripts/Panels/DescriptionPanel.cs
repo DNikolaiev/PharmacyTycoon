@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 public class DescriptionPanel :  Panel {
-    public Text type;
-    public Text cures;
-    public Text toxicity;
-    public Text healingRate;
-    public TalentHolder[] talents;
-    public bool startAtOffset;
-    public Animation slideAnim;
+    [SerializeField] Text type;
+    [SerializeField] Text cures;
+    [SerializeField] Text toxicity;
+    [SerializeField] Text healingRate;
+    [SerializeField] TalentHolder[] talents;
+    [SerializeField] bool startAtOffset;
+    [SerializeField] Animation slideAnim;
+    [SerializeField] Scrollbar scroll;
+    [SerializeField] float slideTo = 1;
     private RectTransform rect;
     public bool isActive;
     public override void Hide()
@@ -18,7 +20,20 @@ public class DescriptionPanel :  Panel {
         if(slideAnim!=null)
             slideAnim.Play("SlideBackwards_DescriptionPanel");
     }
-    
+    public void Clear()
+    {
+        if (Nametxt != null)
+            Nametxt.text = "Select recipe";
+        if (type != null)
+            type.text = "to see it";
+        foreach( TalentHolder t in talents)
+        {
+            t.Talent = null;
+            t.picture.sprite = t.defaultSprite;
+           
+        }
+
+    }
     public void SetPanel(Talent talent, TalentHolder holder)
     {
         if (talent == null) return;
@@ -30,9 +45,12 @@ public class DescriptionPanel :  Panel {
     
     public void SetPanel(Recipe recipe, RecipeHolder holder)
     {
-        if (recipe == null) return;
+        if (recipe.Talents.Count==0  || holder==null||recipe==null) return;
         ChangeView(true);
+        if(scroll!=null)
+            StartCoroutine(SlideValueOverTime(slideTo));
         SetMainInformation(recipe);
+
         TalentHolder[] primaryHolders = { talents[0], talents[1], talents[2] };
         TalentHolder[] secondaryHolders = { talents[3], talents[4], talents[5], talents[6] };
         foreach (TalentHolder t in talents)
@@ -59,7 +77,29 @@ public class DescriptionPanel :  Panel {
             }
             secondaryHolders[i].Talent = recipe.STalents[i];
         }
-
+        foreach(TalentHolder t in talents)
+        {
+            t.SetPanel();
+        }
+    }
+    IEnumerator SlideValueOverTime( float to)
+    {
+        if (scroll.value < to)
+        {
+            while (scroll.value < to)
+            {
+                scroll.value += 0.05f;
+                yield return null;
+            }
+        }
+        else
+        {
+            while(scroll.value>to)
+            {
+                scroll.value -= 0.05f;
+                yield return null;
+            }
+        }
     }
     private void ChangeView(bool state)
     {
@@ -92,9 +132,12 @@ public class DescriptionPanel :  Panel {
         gameObject.SetActive(true);
         if(slideAnim!=null)
              slideAnim.Play("Slide_DescriptionPanel");
-        if (recipe.isLiquid)
-            type.text = "Liquid";
-        else type.text = "Pills";
+        if (type!=null)
+        {
+            if (recipe.isLiquid)
+                type.text = "Liquid";
+            else type.text = "Pills";
+        }
         if (cures != null)
         {
             cures.text = "<color='red'>Сures </color> ";
@@ -107,6 +150,7 @@ public class DescriptionPanel :  Panel {
                     cures.text += tal.cures + ", ";
             }
         }
+        
         Nametxt.text = recipe.description.Name;
         if(toxicity!=null)
              toxicity.text = "<color='green'>Toxicity: </color>" + recipe.characteristics.toxicity.ToString() + " %" ;
@@ -121,7 +165,7 @@ public class DescriptionPanel :  Panel {
             slideAnim.Play("Slide_DescriptionPanel");
         toxicity.text = "<color='lime'>Toxicity</color>: " + talent.characteristics.toxicity.ToString() + " %";
         cures.text = "<color='red'>Cures </color>: " + talent.cures;
-        healingRate.text = "<color='red'>Healing: </color>: " + talent.characteristics.healingRate.ToString();
+        healingRate.text = "<color='red'>Healing</color>: " + talent.characteristics.healingRate.ToString();
         if (talent.isPrimary)
             type.text = "<color='orange'>Primary</color>";
         else type.text = "<color='orange'>Secondary</color>";
@@ -130,23 +174,33 @@ public class DescriptionPanel :  Panel {
     }
     public override void SetPanel()
     {
-        throw new System.NotImplementedException();
+        if(Nametxt!=null)
+        Nametxt.text = "Select recipe";
+        if(type!=null)
+             type.text = "To see it";
+        
+        
     }
 
     // Use this for initialization
     void Start () {
         rect = GetComponent<RectTransform>();
         ReturnToDefault();
+        SetPanel();
         if (startAtOffset)
         {
+            
             ReturnToOrigin();
         }
         
 	}
     public  void ReturnToOrigin()
     {
-        rect.offsetMin = new Vector2(300, 0);
-        rect.offsetMax = new Vector2(300, 0);
+        if (rect == null) return;
+            rect.offsetMin = new Vector2(300, 0);
+            rect.offsetMax = new Vector2(300, 0);
+        
+
     }
     public  void ReturnToDefault()
     {

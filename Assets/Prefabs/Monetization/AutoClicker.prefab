@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1700972118617376
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4058544063425134}
+  - component: {fileID: 114497033425312830}
+  m_Layer: 0
+  m_Name: AutoClicker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4058544063425134
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700972118617376}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114497033425312830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700972118617376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcde81579901d424d8eb1413cbc4a801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  description:
+    Name: Auto-Clicker
+    description: Resources will collect automatically, no need to tap every time!
+    buyPrice: 0
+    sellPrice: 0
+    sprite: {fileID: 21300000, guid: 3789d628597e888409b4deee1021eb8a, type: 3}
+    upgradedSprite: {fileID: 0}
+    mergedSprite: {fileID: 0}
+  afterPurchaseText: Congratulations! Now you don't have to worry about tapping. We
+    will collect resources for you as soon as they are available
+  priceInDollars: 1.99
+  priceInCoins: 125
+  canBeWatched: 0
+  coolDownInDays: 0
+  id: auto_clicker

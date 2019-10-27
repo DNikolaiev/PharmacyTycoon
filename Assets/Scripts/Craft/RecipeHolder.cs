@@ -3,21 +3,42 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEnterHandler {
+public class RecipeHolder : Holder, IPointerDownHandler, IDescription, IPointerEnterHandler
+{
     public Recipe recipe;
     public Text quantitytxt;
+    public Text priceText;
     public Text deathText;
     [SerializeField] Button action;
+    [SerializeField] Button deleteButton;
     [SerializeField] ConfirmationWindow confirm;
     [SerializeField] DragHandler dragger;
-    public  void SetDescription()
+    [SerializeField] AudioClip onEndDragSound;
+    [SerializeField] AudioClip onSelectSound;
+    [SerializeField] Animator anim;
+    Canvas canvas;
+    public void SetDescription()
     {
-        descriptionPanel.SetPanel(recipe, this);
-    }
+        if (!CompareTag("Basic"))
+        {
+            if( !GameController.instance.crafter.view.gameObject.activeInHierarchy)
+            RecipeSelector.UnSelectRecipe();
+            descriptionPanel.SetPanel(recipe, this);
 
+        }
+    }
+    public void ClearDescription()
+    {
+        descriptionPanel.Clear();
+       
+      
+    }
+   
+        
+    
     private void Start()
     {
-        
+
         confirm = GameController.instance.buttons.confirm;
         if (isUnlocked)
             lockedSprite.SetActive(false);
@@ -28,41 +49,75 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
             action.onClick.AddListener(SetDescription);
         if (recipe != null)
             SetPanel();
+
+        if (!GameController.instance.generalTutorial.isTutorialCompleted && deleteButton != null)
+        {
+           
+                deleteButton.interactable = false;
+        }
+        else if (GameController.instance.generalTutorial.isTutorialCompleted && deleteButton!=null) deleteButton.interactable = true;
     }
+    
     public override void SetPanel()
     {
-        if (GameController.instance.crafter.inventory.CheckIfWarehouseContains(recipe.description.Name))
+        if (GameController.instance.player.inventory.CheckIfWarehouseContains(recipe.description.Name))
         {
             if (quantitytxt != null)
-                quantitytxt.text = "x" + GameController.instance.crafter.inventory.GetQuantity(recipe.description.Name).ToString();
+                quantitytxt.text = "x" + GameController.instance.player.inventory.GetQuantity(recipe.description.Name).ToString();
+            if (priceText != null)
+                priceText.text = recipe.price.Value.ToString();
         }
         else return;
-        if(deathText!=null)
-             deathText.text = "Death Rating - " + recipe.DeathRating + " %";
-        recipe.description.sprite = Resources.Load<Sprite>("Icons/Recipe/Liquid-1");
+        if (deathText != null)
+            deathText.text = recipe.GetDeathRating() + " %";
+
         picture.sprite = recipe.description.sprite;
-        if(Nametxt!=null)
-        Nametxt.text = recipe.description.Name;
+        if (Nametxt != null)
+            Nametxt.text = recipe.description.Name;
 
     }
     private void InitializeDrag()
     {
-        dragger.SetCanvas(GameController.instance.crafter.view.craftPanel.transform.parent.GetComponent<Canvas>());
+
+        if (GameController.instance.crafter.view.transform.parent.gameObject.activeInHierarchy)
+            canvas = GameController.instance.crafter.view.craftPanel.transform.parent.GetComponent<Canvas>();
+        else
+            canvas = FindObjectOfType<Seller>().view.transform.parent.GetComponent<Canvas>();
+        dragger.SetCanvas(canvas);
         dragger.onBeginMethod += OnBeginDrag;
         dragger.onEndMethod += OnEndDrag;
     }
     private void OnBeginDrag()
     {
         if (dragger.dragItem != null) return;
+        Debug.Log("BeginDrag");
         GameObject copy = Instantiate(gameObject, transform.position, Quaternion.identity, action.transform.parent.parent.parent.parent);
         copy.GetComponent<RecipeHolder>().picture.raycastTarget = false;
-        copy.transform.SetParent(GameController.instance.crafter.view.transform.parent);
-
+        copy.transform.SetParent(canvas.transform);
+        SetDescription();
         dragger.SetDragItem(copy);
+        GameController.instance.audio.MakeSound(onSelectSound);
+        if (anim != null)
+            anim.Play("CraftRecipe_Select");
     }
     private void OnEndDrag()
     {
-      
+
+        if (RecipeSelector.recipeHolderSelected != null)
+        {
+            RecipeSelector.SelectRecipe(recipe);
+            Debug.Log("EndDrag1");
+            dragger.ResetDragItem();
+            GameController.instance.audio.MakeSound(onEndDragSound);
+            return;
+        }
+
+
+        if (GameController.instance.crafter.view.holderSelected == null)
+        {
+            dragger.ResetDragItem();
+            return;
+        }
         if (!GameController.instance.crafter.view.holderSelected.isUnlocked || (GameController.instance.crafter.view.holderSelected == null && dragger.dragItem != null))
         {
             dragger.ResetDragItem();
@@ -70,18 +125,15 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
         }
 
 
-        if (GameController.instance.crafter.view.holderSelected != null && GameController.instance.crafter.view.recipeHolderSelected==null)
+        if (GameController.instance.crafter.view.holderSelected != null && GameController.instance.crafter.view.recipeHolderSelected == null)
         {
             GameController.instance.crafter.controller.OnAddRecipe(this);
-            dragger.ResetDragItem();
-        }
-        else if(GameController.instance.crafter.view.recipeHolderSelected!=null)
-        {
-            GameController.instance.crafter.controller.OnAddRecipe(recipe);
+            GameController.instance.audio.MakeSound(onEndDragSound);
             dragger.ResetDragItem();
         }
 
-        else dragger.ResetDragItem();
+
+        else { Debug.Log("EndDragEND"); dragger.ResetDragItem(); }
 
     }
 
@@ -89,18 +141,24 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
     {
         if (dragger != null)
             return;
-        if (Input.GetMouseButton(0)) 
-           GameController.instance.crafter.controller.OnSelectHolder(this);
+        if (Input.GetMouseButton(0) && !GameController.instance.crafter.view.gameObject.activeInHierarchy)
+            RecipeSelector.recipeHolderSelected = this;
 
     }
 
 
-    public  void OnPointerDown(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
         if (dragger != null)
             return;
+        ClearDescription();
         SetDescription();
-        
+        if (!GameController.instance.crafter.view.gameObject.activeInHierarchy)
+        {
+            
+            RecipeSelector.UnSelectRecipe();
+        }
+
     }
     public void OnDelete()
     {
@@ -123,11 +181,11 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
         var crafter = GameController.instance.crafter;
         crafter.isPrescripted = false;
         crafter.recipeSelected = null;
-        crafter.inventory.Delete(recipe.description.Name);
+        GameController.instance.player.inventory.Delete(recipe.description.Name);
         crafter.PopulateRecipeList(crafter.view.recipesListView, crafter.view.recipeInList);
-        crafter.view.capacity.text = crafter.inventory.GetNumberOfElements().ToString() + " / " + crafter.inventory.capacity.ToString(); // refresh capacity text
+        crafter.view.capacity.text = GameController.instance.player.inventory.GetNumberOfElements().ToString() + " / " + GameController.instance.player.inventory.capacity.ToString(); // refresh capacity text
         Abort();
-        Destroy(gameObject);
+        Destroy(transform.parent.parent.gameObject);
     }
     private bool IsMouseOver()
     {
@@ -137,5 +195,5 @@ public class RecipeHolder: Holder, IPointerDownHandler, IDescription, IPointerEn
         }
         return false;
     }
-    
+
 }

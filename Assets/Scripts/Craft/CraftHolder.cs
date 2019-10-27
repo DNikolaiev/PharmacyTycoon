@@ -9,7 +9,7 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
     [SerializeField] Button action;
     [SerializeField] DragHandler dragger;
     private int clickCount = 0;
-    private float clickdelay = 0.5f;
+    private float clickdelay = 1f;
     private float clickTime;
     private Crafter crafter;
     public override void SetDescription()
@@ -64,6 +64,7 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
         
         if (crafter.view.holderSelected !=null) {
             crafter.controller.OnAddTalent(this);
+            
                 dragger.ResetDragItem();
             }
 
@@ -96,6 +97,7 @@ public class CraftHolder : TalentHolder, IPointerEnterHandler{
         {
             crafter.PopulateTalentList(crafter.view.talentsListView, crafter.view.elementInList, false);
             crafter.view.HighlightHolders(false);
+            
         }
         if (Talent == null) return; // double tap segment. Double tap = reset talent;
         clickCount++;

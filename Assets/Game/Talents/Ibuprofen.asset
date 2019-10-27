@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 213cd810af100b548bf6dc08b8c0a41d, type: 3}
+  m_Name: Ibuprofen
+  m_EditorClassIdentifier: 
+  description:
+    Name: Ibuprofen
+    description: 
+    buyPrice: 1
+    sellPrice: 0
+    sprite: {fileID: 21300000, guid: 9cf5e42b9d79e7843b4baae9657c0a49, type: 3}
+    upgradedSprite: {fileID: 0}
+    mergedSprite: {fileID: 0}
+  lockedSprite: {fileID: 21300000, guid: c419da8361303c14dada379e29fbc409, type: 3}
+  isPrimary: 1
+  isSelected: 0
+  cures: Fever
+  combinations:
+  - Aspirin
+  - Antitussives
+  - Herbal extract
+  - Antibiotic
+  - 'Antiviral '
+  diseases:
+  - Fever
+  - Cold
+  id: 0
+  timeToResearch: 2
+  isUnlocked: 0
+  canBeUnlocked: 1
+  characteristics:
+    healingPlantsNeeded: 3
+    chemistryNeeded: 0
+    plasticNeeded: 1
+    toxicity: 15
+    healingRate: 20

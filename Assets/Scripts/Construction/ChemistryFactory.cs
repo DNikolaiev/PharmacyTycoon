@@ -9,9 +9,11 @@ public class ChemistryFactory : Manufactory {
     {
         resourceStorage.ExpandChemistryStorage(amount);
     }
-    protected override void GainResources(int amount)
+    protected override bool GainResources(int amount)
     {
-        resourceStorage.AddChemistry(amount);
+        if (resourceStorage.AddChemistry(amount)!=0)
+            return true;
+        return false;
     }
 
     protected override void LoseResources(int amount)
